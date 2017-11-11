@@ -62,7 +62,7 @@ def extract_segments(filename,
             boxes_pred = sorted(boxes_pred, key=lambda l:l[4], reverse=True) # sort by result
             boxes_pred = sorted(boxes_pred, key=lambda l:l[5], reverse=True) # sort by acc
 
-            ratio = int(origin.shape[0] / resized.shape[0])
+            ratio = round(origin.shape[0] / resized.shape[0])
 
             for bp in boxes_pred:
                 x, y, w, h, result, acc = bp
@@ -70,21 +70,26 @@ def extract_segments(filename,
 
                 if((x > 0) and (y > 0)):
                     if((x < origin_clone.shape[1]) and (y < origin_clone.shape[0])):
-                        cv2.rectangle(origin_clone, (x,y), (x+w,y+h), (255, 255, 255), 5)
-                        cv2.rectangle(origin_clone, (x,y), (x+w,y+h), (0, 255, 0), 3)
-                        cv2.putText(origin_clone, result+" "+str(int(acc*100))+"%", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 5)
-                        cv2.putText(origin_clone, result+" "+str(int(acc*100))+"%", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 3)
+                        if((result == "lung_left") or (result == "lung_right")):
+                            cv2.rectangle(origin_clone, (x,y), (x+w,y+h), (255, 255, 255), 5)
+                            cv2.rectangle(origin_clone, (x,y), (x+w,y+h), (0, 255, 0), 3)
+                            cv2.putText(origin_clone, result+" "+str(int(acc*100))+"%", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 5)
+                            cv2.putText(origin_clone, result+" "+str(int(acc*100))+"%", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 3)
 
-            while(True):
-                cv2.imshow('Image', origin_clone)
+            # while(True):
+            #     cv2.imshow('Image', origin_clone)
+            #
+            #     key = cv2.waitKey(1) & 0xFF
+            #     if(key == ord("q")):
+            #         print("\n\nQUIT")
+            #         break
+            #
+            # cv2.destroyAllWindows()
 
-                key = cv2.waitKey(1) & 0xFF
-                if(key == ord("q")):
-                    print("\n\nQUIT")
-                    break
-
-            cv2.destroyAllWindows()
-            cvf.save_image(path=PACK_PATH+"/images/", filename="boxcheck.png", image=origin_clone)
+            if(not(util.check_path(path=PACK_PATH+"/results/"))):
+                util.make_path(path=PACK_PATH+"/results/")
+            tmp_sub, tmp_file = util.get_dir_and_file_name(path=filename)
+            cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+".png", image=origin_clone)
 
         else:
             print("You must training first!")
