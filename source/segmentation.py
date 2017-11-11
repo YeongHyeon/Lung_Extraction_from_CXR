@@ -66,30 +66,38 @@ def extract_segments(filename,
 
             for bp in boxes_pred:
                 x, y, w, h, result, acc = bp
-                x, y, w, h = x * ratio, y * ratio, w * ratio, h * ratio
+                rx, ry, rw, rh = x * ratio, y * ratio, w * ratio, h * ratio
 
-                if((x > 0) and (y > 0)):
-                    if((x < origin_clone.shape[1]) and (y < origin_clone.shape[0])):
+                # if((x > 0) and (y > 0)):
+                #     if((x < resized.shape[1]) and (y < resized.shape[0])):
+                #         if((result == "lung_left") or (result == "lung_right")):
+                #             cv2.rectangle(resized, (x, y), (x+w, y+h), (255, 255, 255), 2)
+                #             cv2.putText(resized, result+" "+str(int(acc*100))+"%", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+                #             cv2.putText(resized, result+" "+str(int(acc*100))+"%", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+
+                if((rx > 0) and (ry > 0)):
+                    if((rx < origin_clone.shape[1]) and (ry < origin_clone.shape[0])):
                         if((result == "lung_left") or (result == "lung_right")):
-                            cv2.rectangle(origin_clone, (x,y), (x+w,y+h), (255, 255, 255), 5)
-                            cv2.rectangle(origin_clone, (x,y), (x+w,y+h), (0, 255, 0), 3)
-                            cv2.putText(origin_clone, result+" "+str(int(acc*100))+"%", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 5)
-                            cv2.putText(origin_clone, result+" "+str(int(acc*100))+"%", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 3)
-
-            # while(True):
-            #     cv2.imshow('Image', origin_clone)
-            #
-            #     key = cv2.waitKey(1) & 0xFF
-            #     if(key == ord("q")):
-            #         print("\n\nQUIT")
-            #         break
-            #
-            # cv2.destroyAllWindows()
+                            cv2.rectangle(origin_clone, (rx, ry), (rx+rw, ry+rh), (255, 255, 255), 5)
+                            cv2.rectangle(origin_clone, (rx, ry), (rx+rw, ry+rh), (0, 255, 0), 3)
+                            cv2.putText(origin_clone, result+" "+str(int(acc*100))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 5)
+                            cv2.putText(origin_clone, result+" "+str(int(acc*100))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 3)
 
             if(not(util.check_path(path=PACK_PATH+"/results/"))):
                 util.make_path(path=PACK_PATH+"/results/")
             tmp_sub, tmp_file = util.get_dir_and_file_name(path=filename)
-            cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+".png", image=origin_clone)
+            # cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_small.png", image=resized)
+            cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=origin_clone)
+
+            while(True):
+                cv2.imshow('Image', origin_clone)
+
+                key = cv2.waitKey(1) & 0xFF
+                if(key == ord("q")):
+                    print("window is closed.")
+                    break
+
+            cv2.destroyAllWindows()
 
         else:
             print("You must training first!")

@@ -5,6 +5,7 @@ import argparse
 
 import tensorflow as tf
 
+import source.utility as util
 import source.data_handler as dhand
 import source.model as model
 import source.sub_procedure as sproc
@@ -51,6 +52,19 @@ def main():
     print("\nEnter the CXR image path.")
     cxr_path = input(">>> ")
     seg.extract_segments(filename=cxr_path, height=height, width=width, channel=channel, sess=sess, x_holder=data, training=training, prediction=prediction, saver=saver)
+
+    # print("Enter the path")
+    # usr_path = input(">> ")
+    # if(util.check_path(usr_path)):
+    #     list_dir = util.get_dirlist(path=usr_path, save=False)
+    #     print(list_dir)
+    #
+    #     for li_d in list_dir:
+    #         list_file = util.get_filelist(directory=usr_path+"/"+li_d, extensions=extensions)
+    #
+    #         for li_f in list_file:
+    #             seg.extract_segments(filename=li_f, height=height, width=width, channel=channel, sess=sess, x_holder=data, training=training, prediction=prediction, saver=saver)
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()

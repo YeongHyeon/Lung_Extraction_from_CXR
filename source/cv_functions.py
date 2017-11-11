@@ -17,9 +17,9 @@ def resizing(image=None, width=0, height=0):
 
     # set ratio
     if(width == 0):
-        width = int(image.shape[0] / image.shape[1] * height)
+        width = int(image.shape[1] / image.shape[0] * height)
     elif(height == 0):
-        height = int(image.shape[1] / image.shape[0] * width)
+        height = int(image.shape[0] / image.shape[1] * width)
     else:
         pass
 
