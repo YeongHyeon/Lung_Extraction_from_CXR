@@ -11,7 +11,7 @@ PACK_PATH = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe
 
 def convert_image(image=None, height=None, width=None, channel=None):
 
-    resized_image = cv2.resize(image, (height, width))
+    resized_image = cv2.resize(image, (width, height))
 
     return np.asarray(resized_image).reshape((1, height*width*channel))
 
@@ -52,7 +52,6 @@ def extract_segments(filename,
 
                 if((x > 0) and (y > 0)):
                     if((x < resized.shape[1]) and (y < resized.shape[0])):
-                        cvf.save_image(path=PACK_PATH+"/images/", filename="boxcheck"+str(x)+".png", image=resized[y:y+h, x:x+w])
 
                         prob = sess.run(prediction, feed_dict={x_holder:convert_image(image=resized[y:y+h, x:x+w], height=height, width=width, channel=channel), training:False})
                         result = str(content[int(np.argmax(prob))])
@@ -76,18 +75,15 @@ def extract_segments(filename,
                         cv2.putText(origin_clone, result+" "+str(int(acc*100))+"%", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 5)
                         cv2.putText(origin_clone, result+" "+str(int(acc*100))+"%", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 3)
 
-            # while(True):
-            #     cv2.imshow('Image', origin_clone)
-            #
-            #     key = cv2.waitKey(1) & 0xFF
-            #     if(key == ord("q")):
-            #         print("\n\nQUIT")
-            #         break
-            #
-            # cv2.destroyAllWindows()
-            cvf.save_image(path=PACK_PATH+"/images/", filename="boxcheck.png", image=origin)
-            cvf.save_image(path=PACK_PATH+"/images/", filename="boxcheck.png", image=gray)
-            cvf.save_image(path=PACK_PATH+"/images/", filename="boxcheck.png", image=resized)
+            while(True):
+                cv2.imshow('Image', origin_clone)
+
+                key = cv2.waitKey(1) & 0xFF
+                if(key == ord("q")):
+                    print("\n\nQUIT")
+                    break
+
+            cv2.destroyAllWindows()
             cvf.save_image(path=PACK_PATH+"/images/", filename="boxcheck.png", image=origin_clone)
 
         else:
