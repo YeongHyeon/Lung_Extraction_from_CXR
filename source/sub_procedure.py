@@ -26,6 +26,10 @@ def training_process(sess=None, dataset=None,
     train_loss_list = []
     test_loss_list = []
 
+    stepper = 1
+    if(steps >= 1000):
+        stepper = int(steps / 100)
+
     print("\n Training to "+str(steps)+" steps | Batch size: %d\n" %(batch_size))
 
     tra_am = dataset.train.amount
@@ -36,21 +40,22 @@ def training_process(sess=None, dataset=None,
             train_batch = dataset.train.next_batch(batch_size=batch_size)
         test_batch = dataset.test.next_batch(batch_size=batch_size)
 
-        sys.stdout.write(" Evaluation        \r")
-        sys.stdout.flush()
+        if(i % stepper == 0):
+            sys.stdout.write(" Evaluation        \r")
+            sys.stdout.flush()
 
-        train_accuracy = accuracy.eval(feed_dict={x:train_batch[0], y_:train_batch[1], training:False})
-        test_accuracy = accuracy.eval(feed_dict={x:test_batch[0], y_:test_batch[1], training:False})
-        train_loss = loss.eval(feed_dict={x:train_batch[0], y_:train_batch[1], training:False})
-        test_loss = loss.eval(feed_dict={x:test_batch[0], y_:test_batch[1], training:False})
+            train_accuracy = accuracy.eval(feed_dict={x:train_batch[0], y_:train_batch[1], training:False})
+            test_accuracy = accuracy.eval(feed_dict={x:test_batch[0], y_:test_batch[1], training:False})
+            train_loss = loss.eval(feed_dict={x:train_batch[0], y_:train_batch[1], training:False})
+            test_loss = loss.eval(feed_dict={x:test_batch[0], y_:test_batch[1], training:False})
 
-        train_acc_list.append(train_accuracy)
-        test_acc_list.append(test_accuracy)
-        train_loss_list.append(train_loss)
-        test_loss_list.append(test_loss)
+            train_acc_list.append(train_accuracy)
+            test_acc_list.append(test_accuracy)
+            train_loss_list.append(train_loss)
+            test_loss_list.append(test_loss)
 
-        print(" step [ %d / %d ]\n Accuracy  train: %.5f  |  test: %.5f" %(i, steps, train_accuracy, test_accuracy))
-        print(" CE loss   train: %.5f  |  test: %.5f" %(train_loss, test_loss))
+            print(" step [ %d / %d ]\n Accuracy  train: %.5f  |  test: %.5f" %(i, steps, train_accuracy, test_accuracy))
+            print(" CE loss   train: %.5f  |  test: %.5f" %(train_loss, test_loss))
 
         sys.stdout.write(" Loading next batch\r")
         sys.stdout.flush()

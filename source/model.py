@@ -117,7 +117,6 @@ def convolution_neural_network(x, y_, training=None, height=None, width=None, ch
 
     print("\n** Initialize CNN Layers")
 
-    channel = 3
     x_data = tf.reshape(x, [-1, height, width, channel])
     print("Input: "+str(x_data.shape))
 

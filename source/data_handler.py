@@ -7,6 +7,8 @@ import numpy as np
 import source.utility as util
 import source.constructor as cntr
 
+import source.cv_functions as cvf
+
 PACK_PATH = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))+"/.."
 
 def split_data(path=None, directories=None, extensions=None):
@@ -44,7 +46,7 @@ def split_data(path=None, directories=None, extensions=None):
 
     print("Split the datas!")
 
-def make_dataset(category=None, dirlist=None, height=32, width=32, extensions=None):
+def make_dataset(category=None, dirlist=None, height=32, width=32, channel=3, extensions=None):
 
     print("\n** Make "+category+".csv")
 
@@ -52,16 +54,29 @@ def make_dataset(category=None, dirlist=None, height=32, width=32, extensions=No
     io_mode = "w"
     label_number = 0
 
-    chennel = 1
+    if(not(util.check_path(path=PACK_PATH+"/images/"))):
+        util.make_path(path=PACK_PATH+"/images/")
+    util.refresh_directory(PACK_PATH+"/images/dataset/")
+    
+    channel = 1
     for di in dirlist:
         fi_list = util.get_filelist(directory=PACK_PATH+"/"+category+"/"+di, extensions=extensions)
 
+        cnt = 0
         for fi in fi_list:
+            cnt += 1
 
             image = cv2.imread(fi)
-            resized_image = cv2.resize(image, (height, width))
-            height, width, chennel = resized_image.shape
-            resized_image = resized_image.reshape((height*width*chennel))
+            resized_image = cv2.resize(image, (width, height))
+
+            cvf.save_image(path=PACK_PATH+"/images/dataset/", filename=str(label_number)+"_"+str(cnt)+".png", image=resized_image)
+
+            if(channel == 1):
+                resized_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+                height, width = resized_image.shape
+            else:
+                height, width, channel = resized_image.shape
+            resized_image = resized_image.reshape((height*width*channel))
 
             util.save_dataset_to_csv(save_as=category, label=label_number, data=resized_image, mode=io_mode)
             io_mode = "a"
@@ -74,13 +89,13 @@ def make_dataset(category=None, dirlist=None, height=32, width=32, extensions=No
     f = open(PACK_PATH+"/dataset/format.txt", "w")
     f.write(str(label_number))
     f.write("\n")
-    f.write(str(height*width*chennel))
+    f.write(str(height*width*channel))
     f.write("\n")
     f.write(str(height))
     f.write("\n")
     f.write(str(width))
     f.write("\n")
-    f.write(str(chennel))
+    f.write(str(channel))
     f.close()
 
 def check():
@@ -98,7 +113,7 @@ def check():
     else:
         return False
 
-def make(path=None, height=32, width=32, extensions=None):
+def make(path=None, height=32, width=32, channel=3, extensions=None):
 
     print("\n** Make dataset")
 
@@ -117,7 +132,7 @@ def make(path=None, height=32, width=32, extensions=None):
     print("I got the standard shape!")
 
     for ca in cate_list:
-        make_dataset(category=ca, dirlist=dirlist, height=height, width=width, extensions=extensions)
+        make_dataset(category=ca, dirlist=dirlist, height=height, width=width, channel=channel, extensions=extensions)
 
     for shu in shuffle_list:
         util.shuffle_csv(filename=PACK_PATH+"/dataset/"+shu)

@@ -8,6 +8,7 @@ import tensorflow as tf
 import source.data_handler as dhand
 import source.model as model
 import source.sub_procedure as sproc
+import source.segmentation as seg
 
 def main():
 
@@ -16,7 +17,7 @@ def main():
     if((not(dhand.check())) or (FLAGS.make)):
         print("\nEnter the data path.")
         path = input(">>> ")
-        dhand.make(path=path, height=250, width=150, extensions=extensions)
+        dhand.make(path=path, height=250, width=150, channel=1, extensions=extensions)
 
     dataset = dhand.load()
 
@@ -45,18 +46,18 @@ def main():
     if(user_need_valid.upper() == "Y"):
         sproc.prediction_process(sess=sess, dataset=dataset, x=data, y_=label, training=training, prediction=prediction, saver=saver, validation=FLAGS.validation)
     else:
-        print("You must training first!")
+        pass
 
     print("\nEnter the CXR image path.")
     cxr_path = input(">>> ")
-    extract_segments(filename=cxr_path, sess=sess, x=data, training=training, prediction=prediction, saver=saver)
+    seg.extract_segments(filename=cxr_path, height=height, width=width, channel=channel, sess=sess, x_holder=data, training=training, prediction=prediction, saver=saver)
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--make', type=bool, default=False, help='Default: False. Enter True to update the dataset.')
     parser.add_argument('--boost', type=int, default=0, help='Default: 0. ')
     parser.add_argument('--batch', type=int, default=10, help='Default: 10. Batches per iteration, the number of data to be training and testing.')
-    parser.add_argument('--steps', type=int, default=1000, help='Default: 1000')
+    parser.add_argument('--steps', type=int, default=100, help='Default: 1000')
     parser.add_argument('--validation', type=int, default=0, help='Default: 0')
     FLAGS, unparsed = parser.parse_known_args()
 
