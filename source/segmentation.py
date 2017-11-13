@@ -9,6 +9,38 @@ import source.cv_functions as cvf
 
 PACK_PATH = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))+"/.."
 
+def save_crops(image=None, boxes=None, ratio=1, file_name=None):
+
+    cnt = 0
+    for box in boxes:
+        x, y, w, h, result, acc = box
+        rx, ry, rw, rh = x * ratio, y * ratio, w * ratio, h * ratio
+
+        if((rx > 0) and (ry > 0)):
+            if((rx < image.shape[1]) and (ry < image.shape[0])):
+                if((result == "lung_left") or (result == "lung_right")):
+                    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_"+str(result)+"_"+str(cnt)+"_"+str(int(acc*100))+".png", image=image[ry:ry+rh, rx:rx+rw])
+                    cnt += 1
+
+def draw_boxes(image=None, boxes=None, ratio=1, file_name=None):
+
+    for box in boxes:
+        x, y, w, h, result, acc = box
+        rx, ry, rw, rh = x * ratio, y * ratio, w * ratio, h * ratio
+
+        if((rx > 0) and (ry > 0)):
+            if((rx < image.shape[1]) and (ry < image.shape[0])):
+                if((result == "lung_left") or (result == "lung_right")):
+                    cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (255, 255, 255), 5)
+                    cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (0, 255, 0), 3)
+                    cv2.putText(image, result+" "+str(int(acc*100))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 5)
+                    cv2.putText(image, result+" "+str(int(acc*100))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 3)
+
+
+    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_origin.png", image=image)
+
+    return image
+
 def convert_image(image=None, height=None, width=None, channel=None):
 
     resized_image = cv2.resize(image, (width, height))
@@ -21,7 +53,13 @@ def extract_segments(filename,
                      prediction=None, saver=None):
 
     if(util.check_file(filename=filename)):
+
         tmp_sub, tmp_file = util.get_dir_and_file_name(path=filename)
+
+        if(not(util.check_path(path=PACK_PATH+"/results/"))):
+            util.make_path(path=PACK_PATH+"/results/")
+        if(not(util.check_path(path=PACK_PATH+"/results/"+str(tmp_file)+"/"))):
+            util.make_path(path=PACK_PATH+"/results/"+str(tmp_file)+"/")
 
         origin = cvf.load_image(path=filename)
         origin_clone = origin
@@ -33,6 +71,9 @@ def extract_segments(filename,
         ret,thresh = cv2.threshold(resized, 127, 255, cv2.THRESH_BINARY_INV)
 
         erosed = cvf.erosion(binary_img=thresh, k_size=3, iterations=7)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_gray.png", image=gray)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh.png", image=thresh)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_erose.png", image=erosed)
 
         _, contours, _ = cvf.contouring(binary_img=erosed)
         boxes = cvf.contour2box(contours=contours, padding=50)
@@ -64,40 +105,20 @@ def extract_segments(filename,
 
             ratio = round(origin.shape[0] / resized.shape[0])
 
-            for bp in boxes_pred:
-                x, y, w, h, result, acc = bp
-                rx, ry, rw, rh = x * ratio, y * ratio, w * ratio, h * ratio
+            save_crops(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
 
-                # if((x > 0) and (y > 0)):
-                #     if((x < resized.shape[1]) and (y < resized.shape[0])):
-                #         if((result == "lung_left") or (result == "lung_right")):
-                #             cv2.rectangle(resized, (x, y), (x+w, y+h), (255, 255, 255), 2)
-                #             cv2.putText(resized, result+" "+str(int(acc*100))+"%", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
-                #             cv2.putText(resized, result+" "+str(int(acc*100))+"%", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-
-                if((rx > 0) and (ry > 0)):
-                    if((rx < origin_clone.shape[1]) and (ry < origin_clone.shape[0])):
-                        if((result == "lung_left") or (result == "lung_right")):
-                            cv2.rectangle(origin_clone, (rx, ry), (rx+rw, ry+rh), (255, 255, 255), 5)
-                            cv2.rectangle(origin_clone, (rx, ry), (rx+rw, ry+rh), (0, 255, 0), 3)
-                            cv2.putText(origin_clone, result+" "+str(int(acc*100))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 5)
-                            cv2.putText(origin_clone, result+" "+str(int(acc*100))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 3)
-
-            if(not(util.check_path(path=PACK_PATH+"/results/"))):
-                util.make_path(path=PACK_PATH+"/results/")
-            tmp_sub, tmp_file = util.get_dir_and_file_name(path=filename)
-            # cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_small.png", image=resized)
+            origin_clone = draw_boxes(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
             cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=origin_clone)
 
-            while(True):
-                cv2.imshow('Image', origin_clone)
-
-                key = cv2.waitKey(1) & 0xFF
-                if(key == ord("q")):
-                    print("window is closed.")
-                    break
-
-            cv2.destroyAllWindows()
+            # while(True):
+            #     cv2.imshow('Image', origin_clone)
+            #
+            #     key = cv2.waitKey(1) & 0xFF
+            #     if(key == ord("q")):
+            #         print("window is closed.")
+            #         break
+            #
+            # cv2.destroyAllWindows()
 
         else:
             print("You must training first!")
