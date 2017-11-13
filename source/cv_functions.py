@@ -132,13 +132,13 @@ def moving_avg_filter(binary_img=None, k_size=3):
 
     return clone
 
-def feeding_outside_filter(binary_img=None):
+def feeding_outside_filter(binary_img=None, thresh=127):
 
     clone = binary_img
     for x in range(binary_img.shape[1]):
         limit = 0
         for y in range(binary_img.shape[0]):
-            if(binary_img[y, x] > 127):
+            if(binary_img[y, x] > thresh):
                 limit = y
                 break
         clone[:limit, x] = np.ones((limit)) * 255
@@ -146,7 +146,7 @@ def feeding_outside_filter(binary_img=None):
     for y in range(binary_img.shape[0]):
         limit = 0
         for x in range(binary_img.shape[1]):
-            if(binary_img[y, x] > 127):
+            if(binary_img[y, x] > thresh):
                 limit = x
                 break
         clone[y, :limit] = np.ones((limit)) * 255
@@ -154,7 +154,7 @@ def feeding_outside_filter(binary_img=None):
     for y in range(binary_img.shape[0]):
         limit = 0
         for x in range(binary_img.shape[1]):
-            if(binary_img[y, binary_img.shape[1]-1-x] > 127):
+            if(binary_img[y, binary_img.shape[1]-1-x] > thresh):
                 limit = x
                 break
         clone[y, binary_img.shape[1]-limit:] = np.ones((limit)) * 255

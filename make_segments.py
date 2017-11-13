@@ -18,7 +18,7 @@ def tmp_main():
 
     util.refresh_directory(PACK_PATH+"/images")
 
-    img = cvf.load_image(path="/home/yeonghyeon/Desktop/total/pleural effusion_pre.bmp")
+    img = cvf.load_image(path="/home/yeonghyeon/Desktop/total/sic_post.bmp")
     print(img.shape)
 
     gray = cvf.rgb2gray(rgb=img)
@@ -32,7 +32,7 @@ def tmp_main():
     res2 = np.roll(res, 3, axis=1)
     cvf.save_image(path=PACK_PATH+"/images/", filename="111.png", image=res+res1+res2)
 
-    feed = cvf.feeding_outside_filter(binary_img=res)
+    feed = cvf.feeding_outside_filter(binary_img=res, thresh=100)
     cvf.save_image(path=PACK_PATH+"/images/", filename="feed.png", image=feed)
 
     movavg = cvf.moving_avg_filter(binary_img=res, k_size=int(res.shape[0]/50))
@@ -80,9 +80,10 @@ def extract_segments(filename):
     resized = cvf.resizing(image=gray, width=500)
     avg = np.average(resized)
 
-    movavg = cvf.moving_avg_filter(binary_img=resized, k_size=10)
+    feed = cvf.feeding_outside_filter(binary_img=resized, thresh=100)
+    movavg = cvf.moving_avg_filter(binary_img=feed, k_size=int(resized.shape[0]/50))
 
-    ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.8, 255, cv2.THRESH_BINARY_INV)
+    ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.7, 255, cv2.THRESH_BINARY_INV)
 
     contours = cvf.contouring(binary_img=thresh)
     boxes = cvf.contour2box(contours=contours, padding=20)
@@ -103,7 +104,8 @@ def extract_segments(filename):
                             if((x2+w2 < resized.shape[1]) and (y2+h2 < resized.shape[0])):
                                 if((w*0.5 <= x2+w2-x) and (w >= x2+w2-x)):
                                     if(((y <= y2) and (y+h <= y2)) or ((y <= y2+h2) and (y+h <= y2+h2))):
-                                        boxes.append([min(x, x2), min(y, y2), max(x+w, x2+w2)-min(x, x2), max(y+h, y2+h2)-min(y, y2)])
+                                        pass
+                                        # boxes.append([min(x, x2), min(y, y2), max(x+w, x2+w2)-min(x, x2), max(y+h, y2+h2)-min(y, y2)])
 
     resized = cvf.resizing(image=gray, width=500)
     for box in boxes:
@@ -166,5 +168,5 @@ def main():
 
 if __name__ == '__main__':
 
-    tmp_main()
-    # main()
+    # tmp_main()
+    main()
