@@ -8,7 +8,15 @@ import source.utility as util
 
 PACK_PATH = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
+    # ret,thresh1 = cv2.threshold(res, 127, 255, cv2.THRESH_BINARY)
+    # ret,thresh2 = cv2.threshold(res, 127, 255, cv2.THRESH_BINARY_INV)
+    # ret,thresh3 = cv2.threshold(res, 127, 255, cv2.THRESH_TRUNC)
+    # ret,thresh4 = cv2.threshold(res, 127, 255, cv2.THRESH_TOZERO)
+    # ret,thresh5 = cv2.threshold(res, 127, 255, cv2.THRESH_TOZERO_INV)
+
 def tmp_main():
+
+    util.refresh_directory(PACK_PATH+"/images")
 
     img = cvf.load_image(path="/home/yeonghyeon/Desktop/total/pleural effusion_pre.bmp")
     print(img.shape)
@@ -20,39 +28,26 @@ def tmp_main():
     print(res.shape)
     print("AVG: "+str(np.average(res)))
 
-    adaptive = cvf.adaptiveThresholding(gray=res, neighbor=5, blur=True, k_size=3)
-    cvf.save_image(path=PACK_PATH+"/images/", filename="adaptive.png", image=adaptive)
+    res1 = np.roll(res, 3, axis=0)
+    res2 = np.roll(res, 3, axis=1)
+    cvf.save_image(path=PACK_PATH+"/images/", filename="111.png", image=res+res1+res2)
 
-    opening = cvf.opening(binary_img=adaptive, k_size=2, iterations=1)
-    cvf.save_image(path=PACK_PATH+"/images/", filename="opening.png", image=opening)
-    dense = cvf.density_filter(binary_img=opening, k_size=3, dense=0.5)
-    dense = cvf.density_filter(binary_img=dense, k_size=3, dense=0.5)
-    dense = cvf.density_filter(binary_img=dense, k_size=3, dense=0.5)
-    cvf.save_image(path=PACK_PATH+"/images/", filename="dense.png", image=dense)
+    feed = cvf.feeding_outside_filter(binary_img=res)
+    cvf.save_image(path=PACK_PATH+"/images/", filename="feed.png", image=feed)
 
-    closing = cvf.closing(binary_img=adaptive, k_size=2, iterations=1)
-    cvf.save_image(path=PACK_PATH+"/images/", filename="closing.png", image=closing)
+    movavg = cvf.moving_avg_filter(binary_img=res, k_size=int(res.shape[0]/50))
+    cvf.save_image(path=PACK_PATH+"/images/", filename="aveage.png", image=movavg)
 
-    cvf.save_image(path=PACK_PATH+"/images/", filename="origin.png", image=img)
-    cvf.save_image(path=PACK_PATH+"/images/", filename="resize.png", image=res)
+    ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.7, 255, cv2.THRESH_BINARY_INV)
+    cvf.save_image(path=PACK_PATH+"/images/", filename="thresh.png", image=thresh)
+    # movavg = cvf.moving_avg_filter(binary_img=thresh, k_size=3)
+    # cvf.save_image(path=PACK_PATH+"/images/", filename="aveage2.png", image=movavg)
 
-    ret,thresh1 = cv2.threshold(res, 127, 255, cv2.THRESH_BINARY)
-    ret,thresh2 = cv2.threshold(res, np.average(res), 255, cv2.THRESH_BINARY_INV)
-    ret,thresh3 = cv2.threshold(res, 127, 255, cv2.THRESH_TRUNC)
-    ret,thresh4 = cv2.threshold(res, 127, 255, cv2.THRESH_TOZERO)
-    ret,thresh5 = cv2.threshold(res, 127, 255, cv2.THRESH_TOZERO_INV)
-
-    cvf.save_image(path=PACK_PATH+"/images/", filename="inverse_thresh.png", image=thresh2)
-
-    erosed = cvf.erosion(binary_img=thresh2, k_size=5, iterations=1)
-    cvf.save_image(path=PACK_PATH+"/images/", filename="erosion.png", image=erosed)
-
-    dilated = cvf.dilation(binary_img=erosed, k_size=10, iterations=1)
-    cvf.save_image(path=PACK_PATH+"/images/", filename="opening_dilated.png", image=dilated)
-    contours = cvf.contouring(binary_img=dilated)
+    contours = cvf.contouring(binary_img=thresh)
 
     boxes = cvf.contour2box(contours=contours, padding=15)
 
+    res = cvf.resizing(image=gray, width=500)
     cnt = 0
     for b in boxes:
         x, y, w, h = b
@@ -85,16 +80,12 @@ def extract_segments(filename):
     resized = cvf.resizing(image=gray, width=500)
     avg = np.average(resized)
 
-    ret,thresh = cv2.threshold(resized, 255-avg, 255, cv2.THRESH_BINARY_INV)
-    blur = cvf.bluring(gray=thresh, k_size=11)
-    # cvf.save_image(path=PACK_PATH+"/images/", filename="blur"+str(tmp_file)+".png", image=blur)
+    movavg = cvf.moving_avg_filter(binary_img=resized, k_size=10)
 
-    erosed = cvf.erosion(binary_img=thresh, k_size=3, iterations=7)
-    # erosed = cvf.erosion(binary_img=erosed, k_size=2, iterations=1) # 5
-    # dilated = cvf.dilation(binary_img=erosed, k_size=3, iterations=3)
+    ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.8, 255, cv2.THRESH_BINARY_INV)
 
-    contours = cvf.contouring(binary_img=erosed)
-    boxes = cvf.contour2box(contours=contours, padding=50)
+    contours = cvf.contouring(binary_img=thresh)
+    boxes = cvf.contour2box(contours=contours, padding=20)
 
     cnt = 0
     loop = len(boxes)
@@ -114,6 +105,7 @@ def extract_segments(filename):
                                     if(((y <= y2) and (y+h <= y2)) or ((y <= y2+h2) and (y+h <= y2+h2))):
                                         boxes.append([min(x, x2), min(y, y2), max(x+w, x2+w2)-min(x, x2), max(y+h, y2+h2)-min(y, y2)])
 
+    resized = cvf.resizing(image=gray, width=500)
     for box in boxes:
         x, y, w, h = box
 
@@ -127,7 +119,6 @@ def extract_segments(filename):
 
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="origin.png", image=origin)
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="thresh.png", image=thresh)
-    cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="erosed.png", image=erosed)
 
     for b in boxes:
         x, y, w, h = b
@@ -135,10 +126,10 @@ def extract_segments(filename):
         if((x > 0) and (y > 0)):
             if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
                 cv2.rectangle(resized,(x,y),(x+w,y+h),(255, 255, 255),2)
-                cv2.rectangle(erosed,(x,y),(x+w,y+h),(255, 255, 255),2)
+                cv2.rectangle(thresh,(x,y),(x+w,y+h),(255, 255, 255),2)
 
     # cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="opened.png", image=dilated)
-    cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="contour.png", image=erosed)
+    cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="contour.png", image=thresh)
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="resized.png", image=resized)
 
     cvf.save_image(path=PACK_PATH+"/images/", filename="resized"+str(tmp_file)+".png", image=resized)

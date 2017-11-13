@@ -116,3 +116,47 @@ def density_filter(binary_img=None, k_size=3, dense=0.5):
                     clone[y+int(k_size/2), x+int(k_size/2)] = 0
 
     return clone
+
+def moving_avg_filter(binary_img=None, k_size=3):
+
+    clone = binary_img
+    for y in range(binary_img.shape[0]):
+        if(y+k_size > binary_img.shape[0]):
+            break
+        for x in range(binary_img.shape[1]):
+            if(x+k_size > binary_img.shape[1]):
+                break
+            else:
+                avg = np.average(binary_img[y:y+k_size, x:x+k_size])
+                clone[y+int(k_size/2), x+int(k_size/2)] = avg
+
+    return clone
+
+def feeding_outside_filter(binary_img=None):
+
+    clone = binary_img
+    for x in range(binary_img.shape[1]):
+        limit = 0
+        for y in range(binary_img.shape[0]):
+            if(binary_img[y, x] > 127):
+                limit = y
+                break
+        clone[:limit, x] = np.ones((limit)) * 255
+
+    for y in range(binary_img.shape[0]):
+        limit = 0
+        for x in range(binary_img.shape[1]):
+            if(binary_img[y, x] > 127):
+                limit = x
+                break
+        clone[y, :limit] = np.ones((limit)) * 255
+
+    for y in range(binary_img.shape[0]):
+        limit = 0
+        for x in range(binary_img.shape[1]):
+            if(binary_img[y, binary_img.shape[1]-1-x] > 127):
+                limit = x
+                break
+        clone[y, binary_img.shape[1]-limit:] = np.ones((limit)) * 255
+
+    return clone
