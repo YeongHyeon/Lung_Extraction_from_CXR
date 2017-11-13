@@ -45,7 +45,7 @@ def tmp_main():
         x, y, w, h = b
 
         if((x > 0) and (y > 0)):
-            if((x < res.shape[1]) and (y < res.shape[0])):
+            if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
                 cvf.save_image(path=PACK_PATH+"/images/", filename="box_"+str(cnt)+".png", image=res[y:y+h, x:x+w])
                 cnt += 1
 
@@ -53,7 +53,7 @@ def tmp_main():
         x, y, w, h = b
 
         if((x > 0) and (y > 0)):
-            if((x < res.shape[1]) and (y < res.shape[0])):
+            if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
                 cv2.rectangle(res,(x,y),(x+w,y+h),(255, 255, 255),2)
 
 
@@ -86,7 +86,7 @@ def extract_segments(filename):
         x, y, w, h = b
 
         if((x > 0) and (y > 0)):
-            if((x < resized.shape[1]) and (y < resized.shape[0])):
+            if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
                 if(not(util.check_path(path=PACK_PATH+"/images/"+str(tmp_file)))):
                     util.make_path(path=PACK_PATH+"/images/"+str(tmp_file))
 
@@ -101,13 +101,15 @@ def extract_segments(filename):
         x, y, w, h = b
 
         if((x > 0) and (y > 0)):
-            if((x < resized.shape[1]) and (y < resized.shape[0])):
+            if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
                 cv2.rectangle(resized,(x,y),(x+w,y+h),(255, 255, 255),2)
                 cv2.rectangle(erosed,(x,y),(x+w,y+h),(255, 255, 255),2)
 
     # cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="opened.png", image=dilated)
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="contour.png", image=erosed)
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="resized.png", image=resized)
+
+    cvf.save_image(path=PACK_PATH+"/images/", filename="resized"+str(tmp_file)+".png", image=resized)
 
 def main():
 
@@ -128,6 +130,12 @@ def main():
             for li_f in list_file:
                 print(li_f)
                 extract_segments(filename=li_f)
+
+        list_file = util.get_filelist(directory=usr_path, extensions=extensions)
+
+        for li_f in list_file:
+            print(li_f)
+            extract_segments(filename=li_f)
 
     else:
         print("Invalid path :"+usr_path)
