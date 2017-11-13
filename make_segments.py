@@ -72,14 +72,11 @@ def extract_segments(filename):
     resized = cvf.resizing(image=gray, width = 500)
     avg = np.average(resized)
 
-    ret,thresh1 = cv2.threshold(resized, 255-avg, 255, cv2.THRESH_BINARY)
     ret,thresh = cv2.threshold(resized, 255-avg, 255, cv2.THRESH_BINARY_INV)
     blur = cvf.bluring(gray=thresh, k_size=11)
     # cvf.save_image(path=PACK_PATH+"/images/", filename="blur"+str(tmp_file)+".png", image=blur)
 
-    erosed = cvf.erosion(binary_img=thresh, k_size=4, iterations=1)
-    erosed = cvf.erosion(binary_img=erosed, k_size=3, iterations=1)
-    erosed = cvf.erosion(binary_img=erosed, k_size=2, iterations=5)
+    erosed = cvf.erosion(binary_img=thresh, k_size=2, iterations=10)
     # erosed = cvf.erosion(binary_img=erosed, k_size=2, iterations=1) # 5
     # dilated = cvf.dilation(binary_img=erosed, k_size=3, iterations=3)
 
@@ -100,8 +97,9 @@ def extract_segments(filename):
 
                         if((x2 > 0) and (y2 > 0)):
                             if((x2+w2 < resized.shape[1]) and (y2+h2 < resized.shape[0])):
-                                if((w*0.7 < x2+w2-x) and (w >= x2+w2-x)):
+                                if((w*0.5 <= x2+w2-x) and (w >= x2+w2-x)):
                                     boxes.append([min(x, x2), min(y, y2), max(x+w, x2+w2)-min(x, x2), max(y+h, y2+h2)-min(y, y2)])
+
     for box in boxes:
         x, y, w, h = box
 
