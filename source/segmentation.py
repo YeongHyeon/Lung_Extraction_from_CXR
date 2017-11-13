@@ -68,14 +68,22 @@ def extract_segments(filename,
 
         avg = np.average(resized)
 
-        ret,thresh = cv2.threshold(resized, 127, 255, cv2.THRESH_BINARY_INV)
+        # ret,thresh = cv2.threshold(resized, 127, 255, cv2.THRESH_BINARY_INV)
+        #
+        # erosed = cvf.erosion(binary_img=thresh, k_size=3, iterations=7)
+        # cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_gray.png", image=gray)
+        # cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh.png", image=thresh)
+        # cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_erose.png", image=erosed)
+        #
+        # contours = cvf.contouring(binary_img=erosed)
+        # boxes = cvf.contour2box(contours=contours, padding=50)
 
-        erosed = cvf.erosion(binary_img=thresh, k_size=3, iterations=7)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_gray.png", image=gray)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh.png", image=thresh)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_erose.png", image=erosed)
+        feed = cvf.feeding_outside_filter(binary_img=resized, thresh=100)
+        movavg = cvf.moving_avg_filter(binary_img=feed, k_size=int(resized.shape[0]/50))
 
-        contours = cvf.contouring(binary_img=erosed)
+        ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.7, 255, cv2.THRESH_BINARY_INV)
+
+        contours = cvf.contouring(binary_img=thresh)
         boxes = cvf.contour2box(contours=contours, padding=50)
 
         if(os.path.exists(PACK_PATH+"/checkpoint/checker.index")):
