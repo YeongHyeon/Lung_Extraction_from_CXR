@@ -17,7 +17,7 @@ def save_crops(image=None, boxes=None, ratio=1, file_name=None):
         rx, ry, rw, rh = x * ratio, y * ratio, w * ratio, h * ratio
 
         if((rx > 0) and (ry > 0)):
-            if((rx < image.shape[1]) and (ry < image.shape[0])):
+            if((rx+rw < image.shape[1]) and (ry+rh < image.shape[0])):
                 if((result == "lung_left") or (result == "lung_right")):
                     cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_"+str(result)+"_"+str(cnt)+"_"+str(int(acc*100))+".png", image=image[ry:ry+rh, rx:rx+rw])
                     cnt += 1
@@ -29,7 +29,7 @@ def draw_boxes(image=None, boxes=None, ratio=1, file_name=None):
         rx, ry, rw, rh = x * ratio, y * ratio, w * ratio, h * ratio
 
         if((rx > 0) and (ry > 0)):
-            if((rx < image.shape[1]) and (ry < image.shape[0])):
+            if((rx+rw < image.shape[1]) and (ry+rh < image.shape[0])):
                 if((result == "lung_left") or (result == "lung_right")):
                     cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (255, 255, 255), 5)
                     cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (0, 255, 0), 3)
@@ -75,7 +75,7 @@ def extract_segments(filename,
         cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh.png", image=thresh)
         cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_erose.png", image=erosed)
 
-        _, contours, _ = cvf.contouring(binary_img=erosed)
+        contours = cvf.contouring(binary_img=erosed)
         boxes = cvf.contour2box(contours=contours, padding=50)
 
         if(os.path.exists(PACK_PATH+"/checkpoint/checker.index")):
@@ -92,7 +92,7 @@ def extract_segments(filename,
                 x, y, w, h = b
 
                 if((x > 0) and (y > 0)):
-                    if((x < resized.shape[1]) and (y < resized.shape[0])):
+                    if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
 
                         prob = sess.run(prediction, feed_dict={x_holder:convert_image(image=resized[y:y+h, x:x+w], height=height, width=width, channel=channel), training:False})
                         result = str(content[int(np.argmax(prob))])

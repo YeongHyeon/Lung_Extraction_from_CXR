@@ -81,8 +81,8 @@ def contouring(binary_img=None):
 
     # return two values: contours, hierarchy
     # cv2.RETR_EXTERNAL
-
-    return cv2.findContours(binary_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    img, contours, hierarchy = cv2.findContours(binary_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    return contours
 
 def contour2box(contours=None, padding=10):
 
@@ -98,3 +98,21 @@ def contour2box(contours=None, padding=10):
         boxes.append([x, y, w, h])
 
     return boxes
+
+def density_filter(binary_img=None, k_size=3, dense=0.5):
+
+    clone = binary_img
+    for y in range(binary_img.shape[0]):
+        if(y+k_size > binary_img.shape[0]):
+            break
+        for x in range(binary_img.shape[1]):
+            if(x+k_size > binary_img.shape[1]):
+                break
+            else:
+                cnt = np.count_nonzero(binary_img[y:y+k_size, x:x+k_size])
+                if(cnt > k_size**2*dense):
+                    clone[y+int(k_size/2), x+int(k_size/2)] = 255
+                else:
+                    clone[y+int(k_size/2), x+int(k_size/2)] = 0
+
+    return clone

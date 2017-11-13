@@ -10,15 +10,28 @@ PACK_PATH = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe
 
 def tmp_main():
 
-    img = cvf.load_image(path="/home/visionlab/Desktop/images/lung_image/POST/IMG-0012-00001.bmp")
+    img = cvf.load_image(path="/home/yeonghyeon/Desktop/total/pleural effusion_pre.bmp")
     print(img.shape)
 
     gray = cvf.rgb2gray(rgb=img)
     print(gray.shape)
 
-    res = cvf.resizing(image=gray, width = 500)
+    res = cvf.resizing(image=gray, width=500)
     print(res.shape)
     print("AVG: "+str(np.average(res)))
+
+    adaptive = cvf.adaptiveThresholding(gray=res, neighbor=5, blur=True, k_size=3)
+    cvf.save_image(path=PACK_PATH+"/images/", filename="adaptive.png", image=adaptive)
+
+    opening = cvf.opening(binary_img=adaptive, k_size=2, iterations=1)
+    cvf.save_image(path=PACK_PATH+"/images/", filename="opening.png", image=opening)
+    dense = cvf.density_filter(binary_img=opening, k_size=3, dense=0.5)
+    dense = cvf.density_filter(binary_img=dense, k_size=3, dense=0.5)
+    dense = cvf.density_filter(binary_img=dense, k_size=3, dense=0.5)
+    cvf.save_image(path=PACK_PATH+"/images/", filename="dense.png", image=dense)
+
+    closing = cvf.closing(binary_img=adaptive, k_size=2, iterations=1)
+    cvf.save_image(path=PACK_PATH+"/images/", filename="closing.png", image=closing)
 
     cvf.save_image(path=PACK_PATH+"/images/", filename="origin.png", image=img)
     cvf.save_image(path=PACK_PATH+"/images/", filename="resize.png", image=res)
@@ -36,7 +49,7 @@ def tmp_main():
 
     dilated = cvf.dilation(binary_img=erosed, k_size=10, iterations=1)
     cvf.save_image(path=PACK_PATH+"/images/", filename="opening_dilated.png", image=dilated)
-    im2, contours, hierarchy = cvf.contouring(binary_img=dilated)
+    contours = cvf.contouring(binary_img=dilated)
 
     boxes = cvf.contour2box(contours=contours, padding=15)
 
@@ -45,7 +58,7 @@ def tmp_main():
         x, y, w, h = b
 
         if((x > 0) and (y > 0)):
-            if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
+            if((x+w < res.shape[1]) and (y+h < res.shape[0])):
                 cvf.save_image(path=PACK_PATH+"/images/", filename="box_"+str(cnt)+".png", image=res[y:y+h, x:x+w])
                 cnt += 1
 
@@ -53,15 +66,15 @@ def tmp_main():
         x, y, w, h = b
 
         if((x > 0) and (y > 0)):
-            if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
+            if((x+w < res.shape[1]) and (y+h < res.shape[0])):
                 cv2.rectangle(res,(x,y),(x+w,y+h),(255, 255, 255),2)
 
 
     cvf.save_image(path=PACK_PATH+"/images/", filename="withbox.png", image=res)
 
-    cv2.imshow('image',res)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow('image',res)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
 def extract_segments(filename):
 
@@ -69,7 +82,7 @@ def extract_segments(filename):
 
     origin = cvf.load_image(path=filename)
     gray = cvf.rgb2gray(rgb=origin)
-    resized = cvf.resizing(image=gray, width = 500)
+    resized = cvf.resizing(image=gray, width=500)
     avg = np.average(resized)
 
     ret,thresh = cv2.threshold(resized, 255-avg, 255, cv2.THRESH_BINARY_INV)
@@ -80,7 +93,7 @@ def extract_segments(filename):
     # erosed = cvf.erosion(binary_img=erosed, k_size=2, iterations=1) # 5
     # dilated = cvf.dilation(binary_img=erosed, k_size=3, iterations=3)
 
-    _, contours, _ = cvf.contouring(binary_img=erosed)
+    contours = cvf.contouring(binary_img=erosed)
     boxes = cvf.contour2box(contours=contours, padding=50)
 
     cnt = 0
@@ -98,7 +111,8 @@ def extract_segments(filename):
                         if((x2 > 0) and (y2 > 0)):
                             if((x2+w2 < resized.shape[1]) and (y2+h2 < resized.shape[0])):
                                 if((w*0.5 <= x2+w2-x) and (w >= x2+w2-x)):
-                                    boxes.append([min(x, x2), min(y, y2), max(x+w, x2+w2)-min(x, x2), max(y+h, y2+h2)-min(y, y2)])
+                                    if(((y <= y2) and (y+h <= y2)) or ((y <= y2+h2) and (y+h <= y2+h2))):
+                                        boxes.append([min(x, x2), min(y, y2), max(x+w, x2+w2)-min(x, x2), max(y+h, y2+h2)-min(y, y2)])
 
     for box in boxes:
         x, y, w, h = box
@@ -137,7 +151,7 @@ def main():
 
     print("Enter the path")
     # usr_path = input(">> ")
-    usr_path = "/home/visionlab/Desktop/ddd"
+    usr_path = "/home/yeonghyeon/Desktop/total"
 
     if(util.check_path(usr_path)):
         list_dir = util.get_dirlist(path=usr_path, save=False)
@@ -161,5 +175,5 @@ def main():
 
 if __name__ == '__main__':
 
-    # tmp_main()
-    main()
+    tmp_main()
+    # main()
