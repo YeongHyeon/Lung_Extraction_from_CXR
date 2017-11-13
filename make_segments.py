@@ -86,7 +86,7 @@ def extract_segments(filename):
     ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.7, 255, cv2.THRESH_BINARY_INV)
 
     contours = cvf.contouring(binary_img=thresh)
-    boxes = cvf.contour2box(contours=contours, padding=20)
+    boxes = cvf.contour2box(contours=contours, padding=50)
 
     cnt = 0
     loop = len(boxes)
