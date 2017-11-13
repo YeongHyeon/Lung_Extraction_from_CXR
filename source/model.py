@@ -35,18 +35,6 @@ def convolution(inputs=None, filters=32, k_size=3, stride=1, padding="same"):
     print("Convolution: "+str(conv.shape))
     return conv
 
-def relu(inputs=None):
-
-    """https://www.tensorflow.org/api_docs/python/tf/nn/relu"""
-
-    re = tf.nn.relu(
-    features=inputs,
-    name=None
-    )
-
-    print("ReLU: "+str(re.shape))
-    return re
-
 def maxpool(inputs=None, pool_size=2):
 
     """https://www.tensorflow.org/api_docs/python/tf/layers/max_pooling1d"""
@@ -120,15 +108,22 @@ def convolution_neural_network(x, y_, training=None, height=None, width=None, ch
     x_data = tf.reshape(x, [-1, height, width, channel])
     print("Input: "+str(x_data.shape))
 
-    conv_1 = convolution(inputs=x_data, filters=16, k_size=5, stride=1, padding="same")
+    conv_1 = convolution(inputs=x_data, filters=4, k_size=5, stride=1, padding="same")
     maxpool_1 = maxpool(inputs=conv_1, pool_size=2)
 
-    conv_2 = convolution(inputs=maxpool_1, filters=32, k_size=5, stride=1, padding="same")
+    conv_2 = convolution(inputs=maxpool_1, filters=8, k_size=5, stride=1, padding="same")
     maxpool_2 = maxpool(inputs=conv_2, pool_size=2)
 
-    conv_3 = convolution(inputs=maxpool_2, filters=64, k_size=5, stride=1, padding="same")
+    conv_3 = convolution(inputs=maxpool_2, filters=16, k_size=5, stride=1, padding="same")
     maxpool_3 = maxpool(inputs=conv_3, pool_size=2)
-    drop_1 = dropout(inputs=maxpool_3, ratio=0.5, train=training)
+
+    conv_4 = convolution(inputs=maxpool_3, filters=32, k_size=5, stride=1, padding="same")
+    maxpool_4 = maxpool(inputs=conv_4, pool_size=2)
+
+    conv_5 = convolution(inputs=maxpool_4, filters=32, k_size=5, stride=1, padding="same")
+    maxpool_5 = maxpool(inputs=conv_5, pool_size=2)
+
+    drop_1 = dropout(inputs=maxpool_5, ratio=0.5, train=training)
 
     flatten_layer = flatten(inputs=drop_1)
 
