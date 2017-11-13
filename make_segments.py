@@ -76,7 +76,7 @@ def extract_segments(filename):
     blur = cvf.bluring(gray=thresh, k_size=11)
     # cvf.save_image(path=PACK_PATH+"/images/", filename="blur"+str(tmp_file)+".png", image=blur)
 
-    erosed = cvf.erosion(binary_img=thresh, k_size=2, iterations=10)
+    erosed = cvf.erosion(binary_img=thresh, k_size=3, iterations=7)
     # erosed = cvf.erosion(binary_img=erosed, k_size=2, iterations=1) # 5
     # dilated = cvf.dilation(binary_img=erosed, k_size=3, iterations=3)
 
