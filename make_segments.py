@@ -72,18 +72,38 @@ def extract_segments(filename):
     resized = cvf.resizing(image=gray, width = 500)
     avg = np.average(resized)
 
+    ret,thresh1 = cv2.threshold(resized, 255-avg, 255, cv2.THRESH_BINARY)
+    ret,thresh = cv2.threshold(resized, 255-avg, 255, cv2.THRESH_BINARY_INV)
+    blur = cvf.bluring(gray=thresh, k_size=11)
+    # cvf.save_image(path=PACK_PATH+"/images/", filename="blur"+str(tmp_file)+".png", image=blur)
 
-    ret,thresh = cv2.threshold(resized, 127, 255, cv2.THRESH_BINARY_INV)
-
-    erosed = cvf.erosion(binary_img=thresh, k_size=3, iterations=7)
+    erosed = cvf.erosion(binary_img=thresh, k_size=4, iterations=1)
+    erosed = cvf.erosion(binary_img=erosed, k_size=3, iterations=1)
+    erosed = cvf.erosion(binary_img=erosed, k_size=2, iterations=5)
+    # erosed = cvf.erosion(binary_img=erosed, k_size=2, iterations=1) # 5
     # dilated = cvf.dilation(binary_img=erosed, k_size=3, iterations=3)
 
     _, contours, _ = cvf.contouring(binary_img=erosed)
     boxes = cvf.contour2box(contours=contours, padding=50)
 
     cnt = 0
-    for b in boxes:
-        x, y, w, h = b
+    loop = len(boxes)
+    for idx in range(loop):
+        x, y, w, h = boxes[idx]
+
+        if((x > 0) and (y > 0)):
+            if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
+
+                for idx2 in range(loop):
+                    if(idx != idx2):
+                        x2, y2, w2, h2 = boxes[idx2]
+
+                        if((x2 > 0) and (y2 > 0)):
+                            if((x2+w2 < resized.shape[1]) and (y2+h2 < resized.shape[0])):
+                                if((w*0.7 < x2+w2-x) and (w >= x2+w2-x)):
+                                    boxes.append([min(x, x2), min(y, y2), max(x+w, x2+w2)-min(x, x2), max(y+h, y2+h2)-min(y, y2)])
+    for box in boxes:
+        x, y, w, h = box
 
         if((x > 0) and (y > 0)):
             if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
@@ -118,7 +138,8 @@ def main():
     util.refresh_directory(PACK_PATH+"/images")
 
     print("Enter the path")
-    usr_path = input(">> ")
+    # usr_path = input(">> ")
+    usr_path = "/home/visionlab/Desktop/ddd"
 
     if(util.check_path(usr_path)):
         list_dir = util.get_dirlist(path=usr_path, save=False)
