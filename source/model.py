@@ -85,6 +85,34 @@ def fully_connected(inputs=None, num_outputs=None, activate_fn=None):
     print("Fully Connected: "+str(full_con.shape))
     return full_con
 
+def batch_normalization(inputs=None):
+    batchnorm = tf.contrib.layers.batch_norm(
+    inputs=inputs,
+    decay=0.999,
+    center=True,
+    scale=False,
+    epsilon=0.001,
+    activation_fn=None,
+    param_initializers=None,
+    param_regularizers=None,
+    updates_collections=tf.GraphKeys.UPDATE_OPS,
+    is_training=True,
+    reuse=None,
+    variables_collections=None,
+    outputs_collections=None,
+    trainable=True,
+    batch_weights=None,
+    fused=None,
+    data_format=DATA_FORMAT_NHWC,
+    zero_debias_moving_mean=False,
+    scope=None,
+    renorm=False,
+    renorm_clipping=None,
+    renorm_decay=0.99
+    )
+
+    return batchnorm
+
 def dropout(inputs=None, ratio=0.5, train=None):
 
     """https://www.tensorflow.org/api_docs/python/tf/layers/dropout"""
