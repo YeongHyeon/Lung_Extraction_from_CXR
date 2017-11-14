@@ -18,7 +18,7 @@ def tmp_main():
 
     util.refresh_directory(PACK_PATH+"/images")
 
-    img = cvf.load_image(path="/home/yeonghyeon/Desktop/total/sic_post.bmp")
+    img = cvf.load_image(path="/home/visionlab/Desktop/images/lung_image/POST/IMG-0012-00001.bmp")
     print(img.shape)
 
     gray = cvf.rgb2gray(rgb=img)
@@ -27,10 +27,6 @@ def tmp_main():
     res = cvf.resizing(image=gray, width=500)
     print(res.shape)
     print("AVG: "+str(np.average(res)))
-
-    res1 = np.roll(res, 3, axis=0)
-    res2 = np.roll(res, 3, axis=1)
-    cvf.save_image(path=PACK_PATH+"/images/", filename="111.png", image=res+res1+res2)
 
     feed = cvf.feeding_outside_filter(binary_img=res, thresh=100)
     cvf.save_image(path=PACK_PATH+"/images/", filename="feed.png", image=feed)
@@ -63,9 +59,11 @@ def tmp_main():
         if((x > 0) and (y > 0)):
             if((x+w < res.shape[1]) and (y+h < res.shape[0])):
                 cv2.rectangle(res,(x,y),(x+w,y+h),(255, 255, 255),2)
+                cv2.rectangle(thresh,(x,y),(x+w,y+h),(255, 255, 255),2)
 
 
     cvf.save_image(path=PACK_PATH+"/images/", filename="withbox.png", image=res)
+    cvf.save_image(path=PACK_PATH+"/images/", filename="withbox_thre.png", image=thresh)
 
     # cv2.imshow('image',res)
     # cv2.waitKey(0)

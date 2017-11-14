@@ -57,7 +57,7 @@ def make_dataset(category=None, dirlist=None, height=32, width=32, channel=3, ex
     if(not(util.check_path(path=PACK_PATH+"/images/"))):
         util.make_path(path=PACK_PATH+"/images/")
     util.refresh_directory(PACK_PATH+"/images/dataset/")
-    
+
     channel = 1
     for di in dirlist:
         fi_list = util.get_filelist(directory=PACK_PATH+"/"+category+"/"+di, extensions=extensions)
