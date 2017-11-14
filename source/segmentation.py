@@ -111,7 +111,7 @@ def extract_segments(filename,
 
                         boxes_pred.append([x, y, w, h, result, acc])
 
-                        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(acc)+"_"+str(cnt)+".png", image=pad)
+                        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(int(acc*100))+"_"+str(cnt)+".png", image=pad)
 
             boxes_pred = sorted(boxes_pred, key=lambda l:l[4], reverse=True) # sort by result
             boxes_pred = sorted(boxes_pred, key=lambda l:l[5], reverse=True) # sort by acc
