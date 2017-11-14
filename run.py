@@ -18,7 +18,7 @@ def main():
     if((not(dhand.check())) or (FLAGS.make)):
         print("\nEnter the data path.")
         path = input(">>> ")
-        dhand.make(path=path, height=250, width=150, channel=1, extensions=extensions)
+        dhand.make(path=path, height=500, width=500, channel=1, extensions=extensions)
 
     dataset = dhand.load()
 

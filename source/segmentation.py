@@ -82,6 +82,7 @@ def extract_segments(filename,
         movavg = cvf.moving_avg_filter(binary_img=feed, k_size=int(resized.shape[0]/50))
 
         ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.7, 255, cv2.THRESH_BINARY_INV)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh.png", image=thresh)
 
         contours = cvf.contouring(binary_img=thresh)
         boxes = cvf.contour2box(contours=contours, padding=50)
@@ -96,17 +97,21 @@ def extract_segments(filename,
                 content[idx] = content[idx][:len(content[idx])-1] # rid \n
 
             boxes_pred = []
+            cnt = 0
             for b in boxes:
                 x, y, w, h = b
 
                 if((x > 0) and (y > 0)):
                     if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
 
-                        prob = sess.run(prediction, feed_dict={x_holder:convert_image(image=resized[y:y+h, x:x+w], height=height, width=width, channel=channel), training:False})
+                        pad = cvf.zero_padding(image=thresh[y:y+h, x:x+w], height=500, width=500)
+                        prob = sess.run(prediction, feed_dict={x_holder:convert_image(image=pad, height=height, width=width, channel=channel), training:False})
                         result = str(content[int(np.argmax(prob))])
                         acc = np.max(prob)
 
                         boxes_pred.append([x, y, w, h, result, acc])
+
+                        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(acc)+"_"+str(cnt)+".png", image=pad)
 
             boxes_pred = sorted(boxes_pred, key=lambda l:l[4], reverse=True) # sort by result
             boxes_pred = sorted(boxes_pred, key=lambda l:l[5], reverse=True) # sort by acc

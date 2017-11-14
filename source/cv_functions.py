@@ -160,3 +160,20 @@ def feeding_outside_filter(binary_img=None, thresh=127):
         clone[y, binary_img.shape[1]-limit:] = np.ones((limit)) * 255
 
     return clone
+
+def zero_padding(image=None, height=100, width=100):
+
+    pad = np.zeros((height, width))
+    mid_y = int(pad.shape[0]/2) # mid of y
+    mid_x = int(pad.shape[1]/2) # mid of x
+    half_h = int(image.shape[0]/2) # height/2 of image
+    half_w = int(image.shape[1]/2) # width/2 of image
+
+    s_py = mid_y-half_h
+    s_px = mid_x-half_w
+    e_py = mid_y-half_h+image.shape[0]
+    e_px = mid_x-half_w+image.shape[1]
+
+    pad[s_py:e_py, s_px:e_px] = pad[s_py:e_py, s_px:e_px] + image
+
+    return pad

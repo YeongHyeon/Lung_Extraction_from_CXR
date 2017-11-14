@@ -116,7 +116,10 @@ def extract_segments(filename):
                 if(not(util.check_path(path=PACK_PATH+"/images/"+str(tmp_file)))):
                     util.make_path(path=PACK_PATH+"/images/"+str(tmp_file))
 
-                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(cnt)+".png", image=resized[y:y+h, x:x+w])
+                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_0_"+str(cnt)+".png", image=thresh[y:y+h, x:x+w])
+                pad = cvf.zero_padding(image=thresh[y:y+h, x:x+w], height=500, width=500)
+                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_1_"+str(cnt)+".png", image=pad)
+                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_2_"+str(cnt)+".png", image=resized[y:y+h, x:x+w])
                 cnt += 1
 
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="origin.png", image=origin)
@@ -144,7 +147,7 @@ def main():
 
     print("Enter the path")
     # usr_path = input(">> ")
-    usr_path = "/home/yeonghyeon/Desktop/total"
+    usr_path = "/home/visionlab/Desktop/total"
 
     if(util.check_path(usr_path)):
         list_dir = util.get_dirlist(path=usr_path, save=False)
