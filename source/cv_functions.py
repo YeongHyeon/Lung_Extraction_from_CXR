@@ -135,6 +135,7 @@ def moving_avg_filter(binary_img=None, k_size=3):
 def feeding_outside_filter(binary_img=None, thresh=127):
 
     clone = binary_img
+
     for x in range(binary_img.shape[1]):
         limit = 0
         for y in range(binary_img.shape[0]):
