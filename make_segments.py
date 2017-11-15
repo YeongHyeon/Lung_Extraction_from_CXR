@@ -156,9 +156,11 @@ def extract_segments(filename):
     for box1 in boxes:
         x1, y1, w1, h1 = box1
 
+        box_comb.append([x1, y1, w1, h1])
+
         for box2 in boxes:
             x2, y2, w2, h2 = box2
-            if((box1 == box2) or ((x1 <= x2) and (y1 <= y2) and (x1+w1 >= x1+w1) and (y1+h1 >= y1+h1))):
+            if((x1 <= x2) and (y1 <= y2) and (x1+w1 >= x1+w1) and (y1+h1 >= y1+h1)):
                 continue
 
             x_start = min(x1,x2)
@@ -179,16 +181,16 @@ def extract_segments(filename):
                 if(not(util.check_path(path=PACK_PATH+"/images/"+str(tmp_file)))):
                     util.make_path(path=PACK_PATH+"/images/"+str(tmp_file))
 
-                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_0_"+str(cnt)+".png", image=thresh[y:y+h, x:x+w])
+                # cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_0_"+str(cnt)+".png", image=thresh[y:y+h, x:x+w])
                 pad = cvf.zero_padding(image=thresh[y:y+h, x:x+w], height=500, width=500)
                 cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_1_"+str(cnt)+".png", image=pad)
-                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_2_"+str(cnt)+".png", image=resized[y:y+h, x:x+w])
+                # cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_2_"+str(cnt)+".png", image=resized[y:y+h, x:x+w])
                 cnt += 1
 
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="origin.png", image=origin)
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="thresh.png", image=thresh)
 
-    for b in boxes:
+    for b in box_comb:
         x, y, w, h = b
 
         if((x > 0) and (y > 0)):
