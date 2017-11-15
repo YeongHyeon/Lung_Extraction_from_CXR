@@ -53,7 +53,7 @@ def main():
     # cxr_path = input(">>> ")
     # seg.extract_segments(filename=cxr_path, height=height, width=width, channel=channel, sess=sess, x_holder=data, training=training, prediction=prediction, saver=saver)
 
-    print("Enter the path")
+    print("\nEnter the path")
     usr_path = input(">> ")
     if(util.check_path(usr_path)):
         list_dir = util.get_dirlist(path=usr_path, save=False)

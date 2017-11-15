@@ -41,6 +41,37 @@ def draw_boxes(image=None, boxes=None, ratio=1, file_name=None):
 
     return image
 
+def concatenate(image=None, boxes=None, ratio=1, file_name=None):
+
+    box_left = []
+    box_right = []
+    for box in boxes:
+        x, y, w, h, result, acc = box
+        rx, ry, rw, rh = x * ratio, y * ratio, w * ratio, h * ratio
+
+        if((rx > 0) and (ry > 0)):
+            if((rx+rw < image.shape[1]) and (ry+rh < image.shape[0])):
+                if(result == "lung_left"):
+                    box_left.append([rx, ry, rw, rh, result, acc])
+                elif(result == "lung_right"):
+                    box_right.append([rx, ry, rw, rh, result, acc])
+
+    cnt = 0
+    for box_r in box_right:
+        x_r, y_r, w_r, h_r, result_r, acc_r = box_r
+
+        for box_l in box_left:
+            x_l, y_l, w_l, h_l, result_l, acc_l = box_l
+
+            x_crop = min(x_r,x_l)
+            y_crop = min(y_r,y_l)
+            w_crop = max(x_r+w_r,x_l+w_l)
+            h_crop = max(y_r+h_r,y_l+h_l)
+
+            cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int(acc*100))+".png", image=image[y_crop:h_crop, x_crop:w_crop])
+            cnt += 1
+
+
 def convert_image(image=None, height=None, width=None, channel=None):
 
     resized_image = cv2.resize(image, (width, height))
@@ -119,6 +150,7 @@ def extract_segments(filename,
             ratio = round(origin.shape[0] / resized.shape[0])
 
             save_crops(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
+            concatenate(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
 
             origin_clone = draw_boxes(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
             cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=origin_clone)
