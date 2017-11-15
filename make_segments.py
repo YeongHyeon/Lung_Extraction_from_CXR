@@ -117,9 +117,11 @@ def extract_segments(filename):
     avg = np.average(resized)
 
     feed = cvf.feeding_outside_filter(binary_img=resized, thresh=100)
+    cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="feed.png", image=feed)
     movavg = cvf.moving_avg_filter(binary_img=feed, k_size=10)
+    cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="movavg.png", image=movavg)
 
-    ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.7, 255, cv2.THRESH_BINARY_INV)
+    ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.8, 255, cv2.THRESH_BINARY_INV)
 
     contours = cvf.contouring(binary_img=thresh)
     boxes = cvf.contour2box(contours=contours, padding=50)
