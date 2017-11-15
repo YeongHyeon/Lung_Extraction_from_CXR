@@ -158,9 +158,9 @@ def extract_segments(filename):
 
         for box2 in boxes:
             x2, y2, w2, h2 = box2
-            if(box1 == box2):
+            if((box1 == box2) or ((x1 <= x2) and (y1 <= y2) and (x1+w1 >= x1+w1) and (y1+h1 >= y1+h1))):
                 continue
-            
+
             x_start = min(x1,x2)
             y_start = min(y1,y2)
             x_end = max(x1+w1,x2+w2)
