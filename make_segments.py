@@ -117,7 +117,7 @@ def extract_segments(filename):
     avg = np.average(resized)
 
     feed = cvf.feeding_outside_filter(binary_img=resized, thresh=100)
-    movavg = cvf.moving_avg_filter(binary_img=feed, k_size=int(resized.shape[0]/50))
+    movavg = cvf.moving_avg_filter(binary_img=feed, k_size=10)
 
     ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.7, 255, cv2.THRESH_BINARY_INV)
 
