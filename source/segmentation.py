@@ -9,29 +9,29 @@ import source.cv_functions as cvf
 
 PACK_PATH = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))+"/.."
 
-def combine_boxs(image=None, boxes=None):
-
-    box_comb = []
-    for box1 in boxes:
-        x1, y1, w1, h1 = box1
-
-        box_comb.append([x1, y1, w1, h1])
-        for box2 in boxes:
-            x2, y2, w2, h2 = box2
-
-            if((x1 <= x2) and (y1 <= y2) and (x1+w1 >= x1+w1) and (y1+h1 >= y1+h1)): # rid duplicated iamge
-                continue
-
-            x_start = min(x1,x2)
-            y_start = min(y1,y2)
-            x_end = max(x1+w1,x2+w2)
-            y_end = max(y1+h1,y2+h2)
-
-            if((x_start > 0) and (y_start > 0)):
-                if((x_end < image.shape[1]) and (y_end < image.shape[0])):
-                    box_comb.append([x_start, y_start, x_end-x_start, y_end-y_start])
-
-    return box_comb
+# def combine_boxs(image=None, boxes=None):
+#
+#     box_comb = []
+#     for box1 in boxes:
+#         x1, y1, w1, h1 = box1
+#
+#         box_comb.append([x1, y1, w1, h1])
+#         for box2 in boxes:
+#             x2, y2, w2, h2 = box2
+#
+#             if((x1 <= x2) and (y1 <= y2) and (x1+w1 >= x1+w1) and (y1+h1 >= y1+h1)): # rid duplicated iamge
+#                 continue
+#
+#             x_start = min(x1,x2)
+#             y_start = min(y1,y2)
+#             x_end = max(x1+w1,x2+w2)
+#             y_end = max(y1+h1,y2+h2)
+#
+#             if((x_start > 0) and (y_start > 0)):
+#                 if((x_end < image.shape[1]) and (y_end < image.shape[0])):
+#                     box_comb.append([x_start, y_start, x_end-x_start, y_end-y_start])
+#
+#     return box_comb
 
 def save_crops(image=None, boxes=None, ratio=1, file_name=None): # save the segments
 
@@ -145,8 +145,8 @@ def extract_segments(filename,
         cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh.png", image=thresh)
 
         contours = cvf.contouring(binary_img=thresh)
-        boxes_tmp = cvf.contour2box(contours=contours, padding=50)
-        boxes = combine_boxs(image=thresh, boxes=boxes_tmp)
+        boxes = cvf.contour2box(contours=contours, padding=50)
+        # boxes = combine_boxs(image=thresh, boxes=boxes_tmp)
 
         if(os.path.exists(PACK_PATH+"/checkpoint/checker.index")):
             saver.restore(sess, PACK_PATH+"/checkpoint/checker")
