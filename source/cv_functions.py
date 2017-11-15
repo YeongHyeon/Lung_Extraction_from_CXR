@@ -174,6 +174,11 @@ def zero_padding(image=None, height=100, width=100):
     e_py = mid_y-half_h+image.shape[0]
     e_px = mid_x-half_w+image.shape[1]
 
-    pad[s_py:e_py, s_px:e_px] = pad[s_py:e_py, s_px:e_px] + image
+    if((image.shape[1] < min(pad.shape)) and (image.shape[0] < min(pad.shape))):
+        pad[s_py:e_py, s_px:e_px] = pad[s_py:e_py, s_px:e_px] + image
+    else:
+        x_limit = min(pad.shape[1], image.shape[1])
+        y_limit = min(pad.shape[0], image.shape[0])
+        pad[:y_limit, :x_limit] = pad[:y_limit, :x_limit] + image[:y_limit, :x_limit]
 
     return pad

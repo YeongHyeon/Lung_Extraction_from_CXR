@@ -9,7 +9,27 @@ import source.cv_functions as cvf
 
 PACK_PATH = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))+"/.."
 
-def save_crops(image=None, boxes=None, ratio=1, file_name=None):
+def combine_boxs(image=None, boxes=None):
+
+    box_comb = []
+    for box1 in boxes:
+        x1, y1, w1, h1 = box1
+
+        for box2 in boxes:
+            x2, y2, w2, h2 = box2
+
+            x_start = min(x1,x2)
+            y_start = min(y1,y2)
+            x_end = max(x1+w1,x2+w2)
+            y_end = max(y1+h1,y2+h2)
+
+            if((x_start > 0) and (y_start > 0)):
+                if((x_end < image.shape[1]) and (y_end < image.shape[0])):
+                    box_comb.append([x_start, y_start, x_end-x_start, y_end-y_start])
+
+    return box_comb
+
+def save_crops(image=None, boxes=None, ratio=1, file_name=None): # save the segments
 
     cnt = 0
     for box in boxes:
@@ -63,13 +83,15 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
         for box_l in box_left:
             x_l, y_l, w_l, h_l, result_l, acc_l = box_l
 
-            x_crop = min(x_r,x_l)
-            y_crop = min(y_r,y_l)
-            w_crop = max(x_r+w_r,x_l+w_l)
-            h_crop = max(y_r+h_r,y_l+h_l)
+            x_start = min(x_r,x_l)
+            y_start = min(y_r,y_l)
+            x_end = max(x_r+w_r,x_l+w_l)
+            y_end = max(y_r+h_r,y_l+h_l)
 
-            cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_r)/2*100))+".png", image=image[y_crop:h_crop, x_crop:w_crop])
-            cnt += 1
+            if((x_start > 0) and (y_start > 0)):
+                if((x_end < image.shape[1]) and (y_end < image.shape[0])):
+                    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_r)/2*100))+".png", image=image[y_start:y_end, x_start:x_end])
+                    cnt += 1
 
 
 def convert_image(image=None, height=None, width=None, channel=None):
@@ -116,7 +138,8 @@ def extract_segments(filename,
         cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh.png", image=thresh)
 
         contours = cvf.contouring(binary_img=thresh)
-        boxes = cvf.contour2box(contours=contours, padding=50)
+        boxes_tmp = cvf.contour2box(contours=contours, padding=50)
+        boxes = combine_boxs(image=thresh, boxes=boxes_tmp)
 
         if(os.path.exists(PACK_PATH+"/checkpoint/checker.index")):
             saver.restore(sess, PACK_PATH+"/checkpoint/checker")
