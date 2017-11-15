@@ -15,8 +15,12 @@ def combine_boxs(image=None, boxes=None):
     for box1 in boxes:
         x1, y1, w1, h1 = box1
 
+        box_comb.append([x1, y1, w1, h1])
         for box2 in boxes:
             x2, y2, w2, h2 = box2
+
+            if((x1 <= x2) and (y1 <= y2) and (x1+w1 >= x1+w1) and (y1+h1 >= y1+h1)): # rid duplicated iamge
+                continue
 
             x_start = min(x1,x2)
             y_start = min(y1,y2)
@@ -77,6 +81,7 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
                     box_right.append([rx, ry, rw, rh, result, acc])
 
     cnt = 0
+    box_concat = []
     for box_r in box_right:
         x_r, y_r, w_r, h_r, result_r, acc_r = box_r
 
@@ -90,9 +95,11 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
 
             if((x_start > 0) and (y_start > 0)):
                 if((x_end < image.shape[1]) and (y_end < image.shape[0])):
+                    box_right.append([rx, ry, rw, rh, result, acc])
                     cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_r)/2*100))+".png", image=image[y_start:y_end, x_start:x_end])
                     cnt += 1
 
+    boxes_pred = sorted(boxes_pred, key=lambda l:l[5], reverse=True) # sort by acc
 
 def convert_image(image=None, height=None, width=None, channel=None):
 
