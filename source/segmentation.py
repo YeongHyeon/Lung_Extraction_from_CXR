@@ -68,7 +68,7 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
             w_crop = max(x_r+w_r,x_l+w_l)
             h_crop = max(y_r+h_r,y_l+h_l)
 
-            cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int(acc*100))+".png", image=image[y_crop:h_crop, x_crop:w_crop])
+            cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_r)/2*100))+".png", image=image[y_crop:h_crop, x_crop:w_crop])
             cnt += 1
 
 
