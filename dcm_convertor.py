@@ -6,7 +6,7 @@ import numpy as np
 import source.cv_functions as cvf
 import source.utility as util
 
-extensions = ["bmp", "png", "DCM", "dcm"]
+extensions = ["DCM", "dcm"]
 import dicom
 
 
