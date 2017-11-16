@@ -7,7 +7,7 @@ def load_image(path=""):
 
 def save_image(path="", filename="", image=None):
 
-    print("Save: "str(path+filename))
+    print("Save: "+str(path+filename))
     cv2.imwrite(path + filename, image)
 
 def rgb2gray(rgb=None):
