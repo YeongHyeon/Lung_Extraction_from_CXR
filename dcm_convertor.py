@@ -39,4 +39,13 @@ if(util.check_path(usr_path)):
         sumx = np.sum(dicom_numpy) / (dicom_numpy.shape[0]*dicom_numpy.shape[1])
         dicom_normal = (dicom_numpy / sumx) * 127
 
+        area1 = np.mean(dicom_normal[:int(dicom_numpy.shape[0]/4), :int(dicom_numpy.shape[1]/4)])
+        area2 = np.mean(dicom_normal[int(dicom_numpy.shape[0]/4*3):, :int(dicom_numpy.shape[1]/4)])
+        area3 = np.mean(dicom_normal[:int(dicom_numpy.shape[0]/4), int(dicom_numpy.shape[1]/4*3):])
+        area4 = np.mean(dicom_normal[int(dicom_numpy.shape[0]/4*3):, int(dicom_numpy.shape[1]/4*3):])
+
+        threshold = np.mean([area1, area2, area3, area4])
+        if(threshold > 127):
+            dicom_normal = 255 - dicom_normal
+
         cvf.save_image(path=main_dir+"/"+tmp_sub+"/", filename=tmp_file+".bmp", image=dicom_normal)
