@@ -58,6 +58,7 @@ def main():
     if(util.check_path(usr_path)):
         files = get_filelist(directory=usr_path, extensions=extensions)
         for fi in files:
+            print(fi)
             seg.extract_segments(filename=fi, height=height, width=width, channel=channel, sess=sess, x_holder=data, training=training, prediction=prediction, saver=saver)
 
 if __name__ == '__main__':
