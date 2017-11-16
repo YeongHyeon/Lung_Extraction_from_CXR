@@ -68,9 +68,12 @@ def get_dirlist(path=None, save=True): # make directory list from path
 def get_filelist(directory=None, extensions=None): # make directory list from directory with path
 
     file_list = []
-    for ext in extensions:
-        for fi in glob.glob(directory+"/*."+ext):
-            file_list.append(fi)
+    for dirName, subdirList, fileList in os.walk(directory):
+        for filename in fileList:
+            for ext in extensions:
+                if ext in filename.lower():  # check whether the file's DICOM
+                    filename = os.path.join(dirName,filename)
+                    file_list.append(filename)
 
     print(str(len(file_list))+" files in "+directory)
 

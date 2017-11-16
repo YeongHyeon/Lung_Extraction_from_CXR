@@ -56,27 +56,9 @@ def main():
     print("\nEnter the path")
     usr_path = input(">> ")
     if(util.check_path(usr_path)):
-        for dirName, subdirList, fileList in os.walk(usr_path):
-            for filename in fileList:
-                for ext in extensions:
-                    if ext in filename.lower():  # check whether the file's DICOM
-                        filename = os.path.join(dirName,filename)
-                        seg.extract_segments(filename=filename, height=height, width=width, channel=channel, sess=sess, x_holder=data, training=training, prediction=prediction, saver=saver)
-
-    # if(util.check_path(usr_path)):
-    #     list_dir = util.get_dirlist(path=usr_path, save=False)
-    #     print(list_dir)
-    #
-    #     for li_d in list_dir:
-    #         list_file = util.get_filelist(directory=usr_path+"/"+li_d, extensions=extensions)
-    #
-    #         for li_f in list_file:
-    #             seg.extract_segments(filename=li_f, height=height, width=width, channel=channel, sess=sess, x_holder=data, training=training, prediction=prediction, saver=saver)
-    #
-    #     list_file = util.get_filelist(directory=usr_path, extensions=extensions)
-    #
-    #     for li_f in list_file:
-    #         seg.extract_segments(filename=li_f, height=height, width=width, channel=channel, sess=sess, x_holder=data, training=training, prediction=prediction, saver=saver)
+        files = get_filelist(directory=usr_path, extensions=extensions)
+        for fi in files:
+            seg.extract_segments(filename=fi, height=height, width=width, channel=channel, sess=sess, x_holder=data, training=training, prediction=prediction, saver=saver)
 
 if __name__ == '__main__':
 
