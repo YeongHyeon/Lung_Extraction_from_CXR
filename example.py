@@ -8,8 +8,8 @@ import source.utility as util
 
 extensions = ["BMP", "bmp", "PNG", "png", "JPG", "jpg", "JPEG", "jpeg", "DCM", "dcm"]
 
-print("\nEnter the path")
-usr_path = input(">> ")
+# print("\nEnter the path")
+# usr_path = input(">> ")
 
 # mode = "w"
 # if(util.check_path(usr_path)):
@@ -46,6 +46,17 @@ usr_path = input(">> ")
 #             print(os.path.join(dirName,filename))
 
 import dicom
-ds = dicom.read_file("/home/yeonghyeon/Desktop/FILE00001.dcm")
+ds = dicom.read_file("/home/yeonghyeon/Downloads/FILE00001.dcm")
+print(ds)
 xx = ds.pixel_array
-print(Xx)
+print(xx.shape)
+print(xx)
+print(type(xx))
+
+sumx = sum(sum(xx))/(xx.shape[0]*xx.shape[1])
+print(sum(sum(xx)))
+print(xx.shape[0]*xx.shape[1])
+print(sumx)
+
+print(xx/sumx)
+cv2.imwrite("x.bmp", xx/sumx)
