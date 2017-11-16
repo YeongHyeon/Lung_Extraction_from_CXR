@@ -15,7 +15,7 @@ usr_path = input(">> ")
 if(util.check_path(usr_path)):
     files = util.get_filelist(directory=usr_path, extensions=extensions)
     for fi in files:
-        print(fi)
+        print("Convert: "+str(fi))
 
         tmp_name = fi.split("/")
         tmp_sub = tmp_name[len(tmp_name)-2]
