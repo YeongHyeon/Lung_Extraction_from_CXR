@@ -36,6 +36,7 @@ if(util.check_path(usr_path)):
         dicom_data = dicom.read_file(fi)
         dicom_numpy = dicom_data.pixel_array
 
-        sumx = sum(sum(dicom_numpy))/(dicom_numpy.shape[0]*dicom_numpy.shape[1])
+        sumx = np.sum(dicom_numpy) / (dicom_numpy.shape[0]*dicom_numpy.shape[1])
+        dicom_normal = (dicom_numpy / sumx) * 127
 
-        cvf.save_image(path=main_dir+"/"+tmp_sub+"/", filename=tmp_file+".bmp", image=dicom_numpy/sumx)
+        cvf.save_image(path=main_dir+"/"+tmp_sub+"/", filename=tmp_file+".bmp", image=dicom_normal)
