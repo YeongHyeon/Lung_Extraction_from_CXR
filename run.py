@@ -13,7 +13,7 @@ import source.segmentation as seg
 
 def main():
 
-    extensions = ["BMP", "bmp", "PNG", "png", "JPG", "jpg", "JPEG", "jpeg"]
+    extensions = ["BMP", "bmp", "PNG", "png", "JPG", "jpg", "JPEG", "jpeg", "DCM", "dcm"]
 
     if((not(dhand.check())) or (FLAGS.make)):
         print("\nEnter the data path.")

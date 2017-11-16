@@ -167,7 +167,7 @@ def main():
 
     print("Enter the path")
     # usr_path = input(">> ")
-    usr_path = "/home/yeonghyeon/Desktop/total"
+    usr_path = "/home/visionlab/Desktop/total"
 
     if(util.check_path(usr_path)):
         list_dir = util.get_dirlist(path=usr_path, save=False)

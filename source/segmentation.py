@@ -121,6 +121,7 @@ def extract_segments(filename,
         if(not(util.check_path(path=PACK_PATH+"/results/"+str(tmp_file)+"/"))):
             util.make_path(path=PACK_PATH+"/results/"+str(tmp_file)+"/")
 
+        print(filename)
         origin = cvf.load_image(path=filename)
         origin_clone = origin
         gray = cvf.rgb2gray(rgb=origin)
