@@ -95,11 +95,9 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
 
             if((x_start > 0) and (y_start > 0)):
                 if((x_end < image.shape[1]) and (y_end < image.shape[0])):
-                    box_right.append([rx, ry, rw, rh, result, acc])
+                    box_concat.append([rx, ry, rw, rh, result, acc])
                     cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_r)/2*100))+".png", image=image[y_start:y_end, x_start:x_end])
                     cnt += 1
-
-    boxes_pred = sorted(boxes_pred, key=lambda l:l[5], reverse=True) # sort by acc
 
 def convert_image(image=None, height=None, width=None, channel=None):
 
@@ -113,7 +111,6 @@ def extract_segments(filename,
                      prediction=None, saver=None):
 
     if(util.check_file(filename=filename)):
-
         tmp_sub, tmp_file = util.get_dir_and_file_name(path=filename)
 
         if(not(util.check_path(path=PACK_PATH+"/results/"))):
@@ -151,7 +148,6 @@ def extract_segments(filename,
 
         if(os.path.exists(PACK_PATH+"/checkpoint/checker.index")):
             saver.restore(sess, PACK_PATH+"/checkpoint/checker")
-
             f = open(PACK_PATH+"/dataset/labels.txt", 'r')
             content = f.readlines()
             f.close()
@@ -162,7 +158,6 @@ def extract_segments(filename,
             cnt = 0
             for b in boxes:
                 x, y, w, h = b
-
                 if((x > 0) and (y > 0)):
                     if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
 
@@ -195,7 +190,6 @@ def extract_segments(filename,
             #         break
             #
             # cv2.destroyAllWindows()
-
         else:
             print("You must training first!")
     else:
