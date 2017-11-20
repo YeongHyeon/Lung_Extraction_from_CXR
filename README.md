@@ -5,8 +5,8 @@
 </p>
 
 <p>
-Requirements.
-psutil
-matplotlib
-pydicom
+Requirements.</br>
+psutil</br>
+matplotlib</br>
+pydicom</br>
 </p>
