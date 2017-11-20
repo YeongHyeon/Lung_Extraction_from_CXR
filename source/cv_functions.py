@@ -1,9 +1,31 @@
 import numpy as np
 import cv2
+import dicom
 
 def load_image(path=""):
 
-    return cv2.imread(path)
+    tmp_path = path.split(".")
+
+    if(tmp_path[len(tmp_path)-1].upper() == "DCM"):
+        dicom_data = dicom.read_file(fi)
+        dicom_numpy = dicom_data.pixel_array
+
+        sumx = np.sum(dicom_numpy) / (dicom_numpy.shape[0]*dicom_numpy.shape[1])
+        dicom_normal = (dicom_numpy / sumx) * 127
+
+        area1 = np.mean(dicom_normal[:int(dicom_numpy.shape[0]/4), :int(dicom_numpy.shape[1]/4)])
+        area2 = np.mean(dicom_normal[int(dicom_numpy.shape[0]/4*3):, :int(dicom_numpy.shape[1]/4)])
+        area3 = np.mean(dicom_normal[:int(dicom_numpy.shape[0]/4), int(dicom_numpy.shape[1]/4*3):])
+        area4 = np.mean(dicom_normal[int(dicom_numpy.shape[0]/4*3):, int(dicom_numpy.shape[1]/4*3):])
+
+        threshold = np.mean([area1, area2, area3, area4])
+        if(threshold > 127):
+            dicom_normal = 255 - dicom_normal
+            
+        return dicom_normal
+    else:
+        return cv2.imread(path)
+
 
 def save_image(path="", filename="", image=None):
 

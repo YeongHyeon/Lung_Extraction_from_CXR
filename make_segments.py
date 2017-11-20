@@ -166,8 +166,8 @@ def main():
     util.refresh_directory(PACK_PATH+"/images")
 
     print("Enter the path")
-    # usr_path = input(">> ")
-    usr_path = "/home/visionlab/Desktop/total"
+    usr_path = input(">> ")
+    # usr_path = "/home/visionlab/Desktop/total"
 
     if(util.check_path(usr_path)):
         list_dir = util.get_dirlist(path=usr_path, save=False)
