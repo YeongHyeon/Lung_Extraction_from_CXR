@@ -39,8 +39,8 @@ class DataSet(object):
 
 
     def next_batch(self, batch_size=10, start=-1, end=-1, nth=-1):
-        data = np.empty((0, self._data_len), float)
-        label = np.empty((0, self._class_len), int)
+        data = np.zeros((0, self._data_len), float)
+        label = np.zeros((0, self._class_len), int)
 
         with open(PACK_PATH+"/dataset/"+str(self._who_am_i)+".csv") as f:
             lines = f.readlines()

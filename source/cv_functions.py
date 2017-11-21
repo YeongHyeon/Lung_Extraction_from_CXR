@@ -10,8 +10,7 @@ def load_image(path=""):
         dicom_data = dicom.read_file(fi)
         dicom_numpy = dicom_data.pixel_array
 
-        sumx = np.sum(dicom_numpy) / (dicom_numpy.shape[0]*dicom_numpy.shape[1])
-        dicom_normal = (dicom_numpy / sumx) * 127
+        dicom_normal = normalizing(binary_img=dicom_numpy)
 
         area1 = np.mean(dicom_normal[:int(dicom_numpy.shape[0]/4), :int(dicom_numpy.shape[1]/4)])
         area2 = np.mean(dicom_normal[int(dicom_numpy.shape[0]/4*3):, :int(dicom_numpy.shape[1]/4)])
@@ -48,15 +47,22 @@ def resizing(image=None, width=0, height=0):
 
     return cv2.resize(image, (width, height))
 
-def bluring(gray=None, k_size=11):
+def bluring(binary_img=None, k_size=11):
 
-    return cv2.GaussianBlur(gray, (k_size, k_size), 0)
+    return cv2.GaussianBlur(binary_img, (k_size, k_size), 0)
 
-def adaptiveThresholding(gray=None, neighbor=5, blur=False, k_size=3):
+def normalizing(binary_img=None):
+
+    sumx = np.sum(binary_img) / (binary_img.shape[0]*binary_img.shape[1])
+    normal = (binary_img / sumx) * 127
+
+    return normal
+
+def adaptiveThresholding(binary_img=None, neighbor=5, blur=False, k_size=3):
 
     if(blur):
-        gray = cv2.GaussianBlur(gray, (k_size, k_size), 0)
-    return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, neighbor, 1)
+        binary_img = cv2.GaussianBlur(binary_img, (k_size, k_size), 0)
+    return cv2.adaptiveThreshold(binary_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, neighbor, 1)
 
 def erosion(binary_img=None, k_size=5, iterations=1):
 
