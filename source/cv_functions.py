@@ -48,6 +48,7 @@ def resizing(image=None, width=0, height=0):
     return cv2.resize(image, (width, height))
 
 def bluring(binary_img=None, k_size=11):
+    binary_img = binary_img.astype('uint8')
 
     return cv2.GaussianBlur(binary_img, (k_size, k_size), 0)
 
@@ -59,24 +60,28 @@ def normalizing(binary_img=None):
     return normal
 
 def adaptiveThresholding(binary_img=None, neighbor=5, blur=False, k_size=3):
+    binary_img = binary_img.astype('uint8')
 
     if(blur):
         binary_img = cv2.GaussianBlur(binary_img, (k_size, k_size), 0)
     return cv2.adaptiveThreshold(binary_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, neighbor, 1)
 
 def erosion(binary_img=None, k_size=5, iterations=1):
+    binary_img = binary_img.astype('uint8')
 
     kernel = np.ones((k_size, k_size),np.uint8)
 
     return cv2.erode(binary_img, kernel, iterations=iterations)
 
 def dilation(binary_img=None, k_size=5, iterations=1):
+    binary_img = binary_img.astype('uint8')
 
     kernel = np.ones((k_size, k_size),np.uint8)
 
     return cv2.dilate(binary_img, kernel, iterations=iterations)
 
 def custom_opeing(binary_img=None, ero_size=5, dil_size=5, iterations=1):
+    binary_img = binary_img.astype('uint8')
 
     ero_kernel = np.ones((ero_size, ero_size),np.uint8)
     dil_kernel = np.ones((dil_size, dil_size),np.uint8)
@@ -86,6 +91,7 @@ def custom_opeing(binary_img=None, ero_size=5, dil_size=5, iterations=1):
     return cv2.dilate(tmp_ero, dil_kernel, iterations=iterations)
 
 def custom_closing(binary_img=None, ero_size=5, dil_size=5, iterations=1):
+    binary_img = binary_img.astype('uint8')
 
     ero_kernel = np.ones((ero_size, ero_size),np.uint8)
     dil_kernel = np.ones((dil_size, dil_size),np.uint8)
@@ -95,18 +101,21 @@ def custom_closing(binary_img=None, ero_size=5, dil_size=5, iterations=1):
     return cv2.erode(tmp_dil, ero_kernel, iterations=iterations)
 
 def opening(binary_img=None, k_size=2, iterations=1):
+    binary_img = binary_img.astype('uint8')
 
     kernel = np.ones((k_size, k_size), np.uint8)
 
     return cv2.morphologyEx(binary_img, cv2.MORPH_OPEN, kernel, iterations=iterations) # iteration = loop
 
 def closing(binary_img=None, k_size=2, iterations=1):
+    binary_img = binary_img.astype('uint8')
 
     kernel = np.ones((k_size, k_size), np.uint8)
 
     return cv2.morphologyEx(binary_img, cv2.MORPH_CLOSE, kernel, iterations=iterations) # iteration = loop
 
 def contouring(binary_img=None):
+    binary_img = binary_img.astype('uint8')
 
     # return two values: contours, hierarchy
     # cv2.RETR_EXTERNAL
@@ -119,8 +128,8 @@ def contour2box(contours=None, padding=10):
     for cnt in contours:
 
         area = cv2.contourArea(cnt)
-        if(area < 30):
-            continue
+        # if(area < 30):
+        #     continue
 
         x, y, w, h = cv2.boundingRect(cnt)
         x, y, w, h = x-int(padding/2), y-int(padding/2), w+int(padding), h+int(padding)

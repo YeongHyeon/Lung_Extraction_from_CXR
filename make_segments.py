@@ -116,12 +116,12 @@ def extract_segments(filename):
     resized = cvf.resizing(image=gray, width=500)
     avg = np.average(resized)
 
-    feed = cvf.feeding_outside_filter(binary_img=resized, thresh=100)
-    cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="feed.png", image=feed)
-    movavg = cvf.moving_avg_filter(binary_img=feed, k_size=10)
+    # feed = cvf.feeding_outside_filter(binary_img=resized, thresh=100)
+    # cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="feed.png", image=feed)
+    movavg = cvf.moving_avg_filter(binary_img=resized, k_size=10)
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="movavg.png", image=movavg)
 
-    ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.7, 255, cv2.THRESH_BINARY_INV)
+    ret,thresh = cv2.threshold(movavg, np.average(movavg)*1, 255, cv2.THRESH_BINARY_INV)
 
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="origin.png", image=origin)
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="thresh.png", image=thresh)
@@ -169,21 +169,10 @@ def main():
     # usr_path = "/home/visionlab/Desktop/total"
 
     if(util.check_path(usr_path)):
-        list_dir = util.get_dirlist(path=usr_path, save=False)
-        print(list_dir)
-
-        for li_d in list_dir:
-            list_file = util.get_filelist(directory=usr_path+"/"+li_d, extensions=extensions)
-
-            for li_f in list_file:
-                print(li_f)
-                extract_segments(filename=li_f)
-
-        list_file = util.get_filelist(directory=usr_path, extensions=extensions)
-
-        for li_f in list_file:
-            print(li_f)
-            extract_segments(filename=li_f)
+        files = util.get_filelist(directory=usr_path, extensions=extensions)
+        for fi in files:
+            print(fi)
+            extract_segments(filename=fi)
 
     else:
         print("Invalid path :"+usr_path)
