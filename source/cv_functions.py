@@ -21,7 +21,7 @@ def load_image(path=""):
         threshold = np.mean([area1, area2, area3, area4])
         if(threshold > 127):
             dicom_normal = 255 - dicom_normal
-            
+
         return dicom_normal
     else:
         return cv2.imread(path)
@@ -142,6 +142,8 @@ def density_filter(binary_img=None, k_size=3, dense=0.5):
 
 def moving_avg_filter(binary_img=None, k_size=3):
 
+    binary_img = zero_padding(image=binary_img, height=binary_img.shape[0]+(k_size*2), width=binary_img.shape[1]+(k_size*2))
+
     clone = binary_img
     for y in range(binary_img.shape[0]):
         if(y+k_size > binary_img.shape[0]):
@@ -153,7 +155,8 @@ def moving_avg_filter(binary_img=None, k_size=3):
                 avg = np.average(binary_img[y:y+k_size, x:x+k_size])
                 clone[y+int(k_size/2), x+int(k_size/2)] = avg
 
-    return clone
+    crop_pad = clone[k_size:clone.shape[0]-k_size, k_size:clone.shape[1]-k_size]
+    return crop_pad
 
 def feeding_outside_filter(binary_img=None, thresh=127):
 
