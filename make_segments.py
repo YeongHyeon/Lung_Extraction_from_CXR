@@ -121,7 +121,7 @@ def extract_segments(filename):
     movavg = cvf.moving_avg_filter(binary_img=resized, k_size=10)
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="movavg.png", image=movavg)
 
-    ret,thresh = cv2.threshold(movavg, np.average(movavg)*1, 255, cv2.THRESH_BINARY_INV)
+    ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.5, 255, cv2.THRESH_BINARY_INV)
 
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="origin.png", image=origin)
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="thresh.png", image=thresh)

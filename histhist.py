@@ -98,10 +98,16 @@ def extract_segments(filename):
         x, y, w, h = b
 
         if((x > 0) and (y > 0)):
-            if((x+w < thresh.shape[1]) and (y+h < thresh.shape[0])):
+            if((x+w < thresh.shape[1]-1) and (y+h < thresh.shape[0]-1)):
                 thresh[y:y+h, x:x+w] = 0
 
     cvf.save_image(path=PACK_PATH+"/images/", filename=str(tmp_file)+"_trhe3.png", image=thresh)
+
+    dilated = cvf.dilation(binary_img=thresh, k_size=3, iterations=10)
+    cvf.save_image(path=PACK_PATH+"/images/", filename=str(tmp_file)+"_dilated.png", image=dilated)
+
+    result = cvf.normalizing(binary_img=dilated + resized)
+    cvf.save_image(path=PACK_PATH+"/images/", filename=str(tmp_file)+"_result.png", image=result)
 
 def main():
 
