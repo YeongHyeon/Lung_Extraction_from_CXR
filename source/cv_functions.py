@@ -162,6 +162,7 @@ def moving_avg_filter(binary_img=None, k_size=3):
                 clone[y+int(k_size/2), x+int(k_size/2)] = avg
 
     crop_pad = clone[k_size:clone.shape[0]-k_size, k_size:clone.shape[1]-k_size]
+    crop_pad = crop_pad.astype('uint8')
     return crop_pad
 
 def feeding_outside_filter(binary_img=None, thresh=127):

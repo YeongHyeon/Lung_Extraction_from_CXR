@@ -123,9 +123,11 @@ def extract_segments(filename):
 
     ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.7, 255, cv2.THRESH_BINARY_INV)
 
+    cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="origin.png", image=origin)
+    cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="thresh.png", image=thresh)
+
     contours = cvf.contouring(binary_img=thresh)
     boxes = cvf.contour2box(contours=contours, padding=50)
-
 
     resized = cvf.resizing(image=gray, width=500)
 
@@ -141,9 +143,6 @@ def extract_segments(filename):
                 cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_1_"+str(cnt)+".png", image=pad)
                 cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_2_"+str(cnt)+".png", image=resized[y:y+h, x:x+w])
                 cnt += 1
-
-    cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="origin.png", image=origin)
-    cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename="thresh.png", image=thresh)
 
     for b in boxes:
         x, y, w, h = b

@@ -6,7 +6,7 @@
 
 <p>
 Requirements.</br>
-opencv</br>
+opencv 3.3.0</br>
 psutil</br>
 matplotlib</br>
 pydicom</br>
