@@ -30,16 +30,25 @@ def extract_segments(filename):
     resized = cvf.resizing(image=gray, width=500)
     cvf.save_image(path=PACK_PATH+"/images/", filename=str(tmp_file)+".png", image=resized)
 
-    movavg = cvf.moving_avg_filter(binary_img=resized, k_size=10)
-
-    print(np.average(movavg)*0.3)
-    mulmul = movavg.copy()
+    mulmul = resized.copy()
     for i in range(20):
         ret,thresh = cv2.threshold(mulmul, np.average(mulmul)*0.3, 255, cv2.THRESH_BINARY)
-        cvf.save_image(path=PACK_PATH+"/images/", filename=str(tmp_file)+"_thresh.png", image=thresh)
+        cvf.save_image(path=PACK_PATH+"/images/", filename=str(tmp_file)+"_thresh1.png", image=thresh)
 
         mulmul = cvf.normalizing(binary_img=resized*(thresh / 255))
-    cvf.save_image(path=PACK_PATH+"/images/", filename=str(tmp_file)+"_mul.png", image=mulmul)
+
+    movavg = cvf.moving_avg_filter(binary_img=mulmul, k_size=10)
+    adap = cvf.adaptiveThresholding(binary_img=movavg, neighbor=101, blur=False, blur_size=3)
+    cvf.save_image(path=PACK_PATH+"/images/", filename=str(tmp_file)+"_adap.png", image=255-adap)
+
+    result = resized*((255-adap)/255)
+    cvf.save_image(path=PACK_PATH+"/images/", filename=str(tmp_file)+"_result1.png", image=result)
+
+    movavg = cvf.moving_avg_filter(binary_img=result, k_size=10)
+    cvf.save_image(path=PACK_PATH+"/images/", filename=str(tmp_file)+"_result2.png", image=movavg)
+
+    ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.5, 255, cv2.THRESH_BINARY_INV)
+    cvf.save_image(path=PACK_PATH+"/images/", filename=str(tmp_file)+"_thresh2.png", image=thresh)
 
 def main():
 

@@ -59,11 +59,11 @@ def normalizing(binary_img=None):
 
     return normal
 
-def adaptiveThresholding(binary_img=None, neighbor=5, blur=False, k_size=3):
+def adaptiveThresholding(binary_img=None, neighbor=5, blur=False, blur_size=3):
     binary_img = binary_img.astype('uint8')
 
     if(blur):
-        binary_img = cv2.GaussianBlur(binary_img, (k_size, k_size), 0)
+        binary_img = cv2.GaussianBlur(binary_img, (blur_size, blur_size), 0)
     return cv2.adaptiveThreshold(binary_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, neighbor, 1)
 
 def erosion(binary_img=None, k_size=5, iterations=1):
