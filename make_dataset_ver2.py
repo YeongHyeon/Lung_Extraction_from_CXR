@@ -42,7 +42,7 @@ def extract_segments(filename):
         mulmul = cvf.normalizing(binary_img=resized*(thresh / 255))
 
     movavg = cvf.moving_avg_filter(binary_img=mulmul, k_size=10)
-    adap = cvf.adaptiveThresholding(binary_img=movavg, neighbor=101, blur=False, blur_size=3)
+    adap = cvf.adaptiveThresholding(binary_img=movavg, neighbor=111, blur=False, blur_size=3)
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_adap.png", image=255-adap)
 
     result = resized*((255-adap)/255)

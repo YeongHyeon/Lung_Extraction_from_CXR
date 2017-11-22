@@ -216,7 +216,13 @@ def zero_padding(image=None, height=100, width=100):
     else:
         x_limit = min(pad.shape[1], image.shape[1])
         y_limit = min(pad.shape[0], image.shape[0])
-        pad[:y_limit, :x_limit] = pad[:y_limit, :x_limit] + image[:y_limit, :x_limit]
+
+        crop = image[:y_limit, :x_limit]
+        s_py = mid_y-half_h
+        s_px = mid_x-half_w
+        e_py = mid_y-half_h+crop.shape[0]
+        e_px = mid_x-half_w+crop.shape[1]
+        pad[s_py:e_py, s_px:e_px] = pad[s_py:e_py, s_px:e_px] + crop
 
     return pad
 
