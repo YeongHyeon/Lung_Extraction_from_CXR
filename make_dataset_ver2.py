@@ -55,7 +55,7 @@ def extract_segments(filename):
     cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh2.png", image=thresh)
 
     contours = cvf.contouring(binary_img=thresh)
-    boxes = cvf.contour2box(contours=contours, padding=50)
+    boxes = cvf.contour2box(contours=contours, padding=5)
 
     resized = cvf.resizing(image=gray, width=500)
 
