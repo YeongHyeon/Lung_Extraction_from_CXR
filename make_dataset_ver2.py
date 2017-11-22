@@ -66,15 +66,14 @@ def extract_segments(filename):
         if((x > 0) and (y > 0)):
             if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
 
-                # cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_0_"+str(cnt)+".png", image=thresh[y:y+h, x:x+w])
+                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_0_"+str(cnt)+".png", image=thresh[y:y+h, x:x+w])
                 pad = cvf.zero_padding(image=thresh[y:y+h, x:x+w], height=500, width=500)
-                # cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_1_"+str(cnt)+".png", image=pad)
-                pad = cvf.remain_only_center(binary_img=pad)
-                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_2_"+str(cnt)+".png", image=pad)
+                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_1_"+str(cnt)+".png", image=pad)
+                pad2 = cvf.remain_only_center(binary_img=pad)
+                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_2_"+str(cnt)+".png", image=pad2)
                 pad_res = cvf.zero_padding(image=resized[y:y+h, x:x+w], height=500, width=500)
-                txtur = cvf.normalizing(binary_img= pad_res * (pad / 255))
-                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_3_"+str(cnt)+".png", image=txtur)
-                # cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_4_"+str(cnt)+".png", image=resized[y:y+h, x:x+w])
+                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_3_"+str(cnt)+".png", image=pad_res*(pad2/255))
+                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_4_"+str(cnt)+".png", image=resized[y:y+h, x:x+w])
                 cnt += 1
 
     for b in boxes:
