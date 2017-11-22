@@ -9,30 +9,6 @@ import source.cv_functions as cvf
 
 PACK_PATH = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))+"/.."
 
-# def combine_boxs(image=None, boxes=None):
-#
-#     box_comb = []
-#     for box1 in boxes:
-#         x1, y1, w1, h1 = box1
-#
-#         box_comb.append([x1, y1, w1, h1])
-#         for box2 in boxes:
-#             x2, y2, w2, h2 = box2
-#
-#             if((x1 <= x2) and (y1 <= y2) and (x1+w1 >= x1+w1) and (y1+h1 >= y1+h1)): # rid duplicated iamge
-#                 continue
-#
-#             x_start = min(x1,x2)
-#             y_start = min(y1,y2)
-#             x_end = max(x1+w1,x2+w2)
-#             y_end = max(y1+h1,y2+h2)
-#
-#             if((x_start > 0) and (y_start > 0)):
-#                 if((x_end < image.shape[1]) and (y_end < image.shape[0])):
-#                     box_comb.append([x_start, y_start, x_end-x_start, y_end-y_start])
-#
-#     return box_comb
-
 def save_crops(image=None, boxes=None, ratio=1, file_name=None): # save the segments
 
     cnt = 0
@@ -65,40 +41,6 @@ def draw_boxes(image=None, boxes=None, ratio=1, file_name=None):
 
     return image
 
-def concatenate(image=None, boxes=None, ratio=1, file_name=None):
-
-    box_left = []
-    box_right = []
-    for box in boxes:
-        x, y, w, h, result, acc = box
-        rx, ry, rw, rh = x * ratio, y * ratio, w * ratio, h * ratio
-
-        if((rx > 0) and (ry > 0)):
-            if((rx+rw < image.shape[1]) and (ry+rh < image.shape[0])):
-                if(result == "lung_left"):
-                    box_left.append([rx, ry, rw, rh, result, acc])
-                elif(result == "lung_right"):
-                    box_right.append([rx, ry, rw, rh, result, acc])
-
-    cnt = 0
-    box_concat = []
-    for box_r in box_right:
-        x_r, y_r, w_r, h_r, result_r, acc_r = box_r
-
-        for box_l in box_left:
-            x_l, y_l, w_l, h_l, result_l, acc_l = box_l
-
-            x_start = min(x_r,x_l)
-            y_start = min(y_r,y_l)
-            x_end = max(x_r+w_r,x_l+w_l)
-            y_end = max(y_r+h_r,y_l+h_l)
-
-            if((x_start > 0) and (y_start > 0)):
-                if((x_end < image.shape[1]) and (y_end < image.shape[0])):
-                    box_concat.append([rx, ry, rw, rh, result, acc])
-                    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_r)/2*100))+".png", image=image[y_start:y_end, x_start:x_end])
-                    cnt += 1
-
 def convert_image(image=None, height=None, width=None, channel=None):
 
     resized_image = cv2.resize(image, (width, height))
@@ -119,32 +61,35 @@ def extract_segments(filename,
             util.make_path(path=PACK_PATH+"/results/"+str(tmp_file)+"/")
 
         print(filename)
+
         origin = cvf.load_image(path=filename)
-        origin_clone = origin
         gray = cvf.rgb2gray(rgb=origin)
-        resized = cvf.resizing(image=gray, width = 500)
+        resized = cvf.resizing(image=gray, width=500)
+        cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+".png", image=resized)
 
-        avg = np.average(resized)
+        mulmul = resized.copy()
+        for i in range(20):
+            ret,thresh = cv2.threshold(mulmul, np.average(mulmul)*0.3, 255, cv2.THRESH_BINARY)
+            cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh1.png", image=thresh)
 
-        # ret,thresh = cv2.threshold(resized, 127, 255, cv2.THRESH_BINARY_INV)
-        #
-        # erosed = cvf.erosion(binary_img=thresh, k_size=3, iterations=7)
-        # cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_gray.png", image=gray)
-        # cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh.png", image=thresh)
-        # cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_erose.png", image=erosed)
-        #
-        # contours = cvf.contouring(binary_img=erosed)
-        # boxes = cvf.contour2box(contours=contours, padding=50)
+            mulmul = cvf.normalizing(binary_img=resized*(thresh / 255))
 
-        feed = cvf.feeding_outside_filter(binary_img=resized, thresh=100)
-        movavg = cvf.moving_avg_filter(binary_img=feed, k_size=int(resized.shape[0]/50))
+        movavg = cvf.moving_avg_filter(binary_img=mulmul, k_size=10)
+        adap = cvf.adaptiveThresholding(binary_img=movavg, neighbor=111, blur=False, blur_size=3)
+        cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_adap.png", image=255-adap)
 
-        ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.7, 255, cv2.THRESH_BINARY_INV)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh.png", image=thresh)
+        result = resized*((255-adap)/255)
+        cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_result1.png", image=result)
+
+        movavg = cvf.moving_avg_filter(binary_img=result, k_size=10)
+        cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_result2.png", image=movavg)
+
+        ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.5, 255, cv2.THRESH_BINARY_INV)
+        cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh2.png", image=thresh)
 
         contours = cvf.contouring(binary_img=thresh)
-        boxes = cvf.contour2box(contours=contours, padding=50)
-        # boxes = combine_boxs(image=thresh, boxes=boxes_tmp)
+        boxes = cvf.contour2box(contours=contours, padding=5)
+        """====================="""
 
         if(os.path.exists(PACK_PATH+"/checkpoint/checker.index")):
             saver.restore(sess, PACK_PATH+"/checkpoint/checker")
@@ -162,24 +107,32 @@ def extract_segments(filename,
                     if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
 
                         pad = cvf.zero_padding(image=thresh[y:y+h, x:x+w], height=500, width=500)
-                        prob = sess.run(prediction, feed_dict={x_holder:convert_image(image=pad, height=height, width=width, channel=channel), training:False})
+                        pad2 = cvf.remain_only_center(binary_img=pad)
+                        pad_res = cvf.zero_padding(image=resized[y:y+h, x:x+w], height=500, width=500)
+
+                        xdata = pad_res*(pad2/255)
+
+                        prob = sess.run(prediction, feed_dict={x_holder:convert_image(image=xdata, height=height, width=width, channel=channel), training:False})
                         result = str(content[int(np.argmax(prob))])
                         acc = np.max(prob)
 
                         boxes_pred.append([x, y, w, h, result, acc])
 
-                        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(int(acc*100))+"_"+str(cnt)+".png", image=pad)
+                        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(int(acc*100))+"_"+str(cnt)+".png", image=xdata)
 
             boxes_pred = sorted(boxes_pred, key=lambda l:l[4], reverse=True) # sort by result
             boxes_pred = sorted(boxes_pred, key=lambda l:l[5], reverse=True) # sort by acc
 
             ratio = round(origin.shape[0] / resized.shape[0])
 
-            save_crops(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
-            concatenate(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
+            # save_crops(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
+            save_crops(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
 
-            origin_clone = draw_boxes(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
-            cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=origin_clone)
+            # origin_clone = draw_boxes(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
+            # cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=origin_clone)
+
+            resized_clone = draw_boxes(image=resized, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
+            cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=resized)
 
             # while(True):
             #     cv2.imshow('Image', origin_clone)
