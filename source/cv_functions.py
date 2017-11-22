@@ -218,6 +218,9 @@ def zero_padding(image=None, height=100, width=100):
         y_limit = min(pad.shape[0], image.shape[0])
 
         crop = image[:y_limit, :x_limit]
+        half_h = int(crop.shape[0]/2) # height/2 of image
+        half_w = int(crop.shape[1]/2) # width/2 of image
+
         s_py = mid_y-half_h
         s_px = mid_x-half_w
         e_py = mid_y-half_h+crop.shape[0]
@@ -260,6 +263,8 @@ def remain_only_center(binary_img=None):
                 binary_img[y:y+h, x:x+w] = 0
 
     binary_inv = 255 - binary_img
+
+    binary_inv = dilation(binary_img=binary_inv, k_size=3, iterations=1)
 
     contours = contouring(binary_img=binary_inv)
     boxes = contour2box(contours=contours, padding=0)
