@@ -165,7 +165,7 @@ def extract_segments(filename,
             # cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=origin_clone)
 
             resized_clone = draw_boxes(image=resized, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
-            cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=resized)
+            cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=resized_clone)
 
             # while(True):
             #     cv2.imshow('Image', origin_clone)
