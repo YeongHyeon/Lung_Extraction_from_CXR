@@ -41,6 +41,40 @@ def draw_boxes(image=None, boxes=None, ratio=1, file_name=None):
 
     return image
 
+def concatenate(image=None, boxes=None, ratio=1, file_name=None):
+
+    box_left = []
+    box_right = []
+    for box in boxes:
+        x, y, w, h, result, acc = box
+        rx, ry, rw, rh = x * ratio, y * ratio, w * ratio, h * ratio
+
+        if((rx > 0) and (ry > 0)):
+            if((rx+rw < image.shape[1]) and (ry+rh < image.shape[0])):
+                if(result == "lung_left"):
+                    box_left.append([rx, ry, rw, rh, result, acc])
+                elif(result == "lung_right"):
+                    box_right.append([rx, ry, rw, rh, result, acc])
+
+    cnt = 0
+    box_concat = []
+    for box_r in box_right:
+        x_r, y_r, w_r, h_r, result_r, acc_r = box_r
+
+        for box_l in box_left:
+            x_l, y_l, w_l, h_l, result_l, acc_l = box_l
+
+            x_start = min(x_r,x_l)
+            y_start = min(y_r,y_l)
+            x_end = max(x_r+w_r,x_l+w_l)
+            y_end = max(y_r+h_r,y_l+h_l)
+
+            if((x_start > 0) and (y_start > 0)):
+                if((x_end < image.shape[1]) and (y_end < image.shape[0])):
+                    box_concat.append([rx, ry, rw, rh, result, acc])
+                    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_r)/2*100))+".png", image=image[y_start:y_end, x_start:x_end])
+                    cnt += 1
+
 def convert_image(image=None, height=None, width=None, channel=None):
 
     resized_image = cv2.resize(image, (width, height))
@@ -86,7 +120,7 @@ def extract_segments(filename,
         cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh2.png", image=thresh)
 
         contours = cvf.contouring(binary_img=thresh)
-        boxes = cvf.contour2box(contours=contours, padding=5)
+        boxes = cvf.contour2box(contours=contours, padding=20)
 
         if(os.path.exists(PACK_PATH+"/checkpoint/checker.index")):
             saver.restore(sess, PACK_PATH+"/checkpoint/checker")
@@ -124,6 +158,8 @@ def extract_segments(filename,
 
             # save_crops(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
             save_crops(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
+            # concatenate(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
+            concatenate(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
 
             # origin_clone = draw_boxes(image=origin_clone, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
             # cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=origin_clone)
