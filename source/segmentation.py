@@ -60,8 +60,6 @@ def extract_segments(filename,
         if(not(util.check_path(path=PACK_PATH+"/results/"+str(tmp_file)+"/"))):
             util.make_path(path=PACK_PATH+"/results/"+str(tmp_file)+"/")
 
-        print(filename)
-
         origin = cvf.load_image(path=filename)
         gray = cvf.rgb2gray(rgb=origin)
         resized = cvf.resizing(image=gray, width=500)
@@ -89,7 +87,6 @@ def extract_segments(filename,
 
         contours = cvf.contouring(binary_img=thresh)
         boxes = cvf.contour2box(contours=contours, padding=5)
-        """====================="""
 
         if(os.path.exists(PACK_PATH+"/checkpoint/checker.index")):
             saver.restore(sess, PACK_PATH+"/checkpoint/checker")
