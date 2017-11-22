@@ -161,8 +161,8 @@ def extract_segments(filename,
             # concatenate(image=origin, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
             concatenate(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
 
-            origin = draw_boxes(image=origin, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
-            cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=origin)
+            # origin = draw_boxes(image=origin, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
+            # cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=origin)
 
             origin_res = cvf.resizing(image=origin, width=500)
             origin_res_clone = draw_boxes(image=origin_res, boxes=boxes_pred, ratio=1, file_name=tmp_file)
