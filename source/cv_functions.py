@@ -262,9 +262,7 @@ def remain_only_center(binary_img=None):
             if((x+w < binary_img.shape[1]) and (y+h < binary_img.shape[0])):
                 binary_img[y:y+h, x:x+w] = 0
 
-    binary_inv = 255 - binary_img
-
-    binary_inv = dilation(binary_img=binary_inv, k_size=3, iterations=1)
+    binary_inv = 255 - dilation(binary_img=binary_img, k_size=3, iterations=5)
 
     contours = contouring(binary_img=binary_inv)
     boxes = contour2box(contours=contours, padding=0)
