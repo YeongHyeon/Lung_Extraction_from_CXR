@@ -33,8 +33,8 @@ def draw_boxes(image=None, boxes=None, ratio=1, file_name=None):
                 if((result == "lung_left") or (result == "lung_right")):
                     cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (255, 255, 255), 5)
                     cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (0, 255, 0), 2)
-                    cv2.putText(image, result+" "+str(int(acc*100))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3)
-                    cv2.putText(image, result+" "+str(int(acc*100))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+                    cv2.putText(image, result+" "+str(int(acc*100))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 3)
+                    cv2.putText(image, result+" "+str(int(acc*100))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
 
     cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_origin.png", image=image)
