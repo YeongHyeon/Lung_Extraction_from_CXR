@@ -21,6 +21,7 @@ def save_amp_and_frequency(sub="sample", save_as="sample", data=None, refresh=Fa
 
     plt.savefig(PACK_PATH+"/images/"+str(tmp_file)+"/"+save_as+".png")
 
+
 def extract_segments(filename):
 
     tmp_sub, tmp_file = util.get_dir_and_file_name(path=filename)
@@ -68,7 +69,9 @@ def extract_segments(filename):
                 cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_0_"+str(cnt)+".png", image=thresh[y:y+h, x:x+w])
                 pad = cvf.zero_padding(image=thresh[y:y+h, x:x+w], height=500, width=500)
                 cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_1_"+str(cnt)+".png", image=pad)
-                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_2_"+str(cnt)+".png", image=resized[y:y+h, x:x+w])
+                pad = cvf.remain_only_center(binary_img=pad)
+                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_2_"+str(cnt)+".png", image=pad)
+                cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_3_"+str(cnt)+".png", image=resized[y:y+h, x:x+w])
                 cnt += 1
 
     for b in boxes:

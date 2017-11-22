@@ -219,3 +219,61 @@ def zero_padding(image=None, height=100, width=100):
         pad[:y_limit, :x_limit] = pad[:y_limit, :x_limit] + image[:y_limit, :x_limit]
 
     return pad
+
+def remain_only_center(binary_img=None):
+
+
+    contours = contouring(binary_img=binary_img)
+    boxes = contour2box(contours=contours, padding=0)
+
+    boxes_new = []
+    for box in boxes:
+        x, y, w, h = box
+
+        if((x > 0) and (y > 0)):
+            if((x+w < binary_img.shape[1]) and (y+h < binary_img.shape[0])):
+
+                box_x = (x + (x + w)) / 2
+                box_y = (y + (y + h)) / 2
+
+                img_x = binary_img.shape[1] / 2
+                img_y = binary_img.shape[0] / 2
+
+                dist = np.sqrt((box_x - img_x)**2 + (box_y - img_y)**2)
+                boxes_new.append([x, y, w, h, dist])
+
+    boxes_new = sorted(boxes_new, key=lambda l:l[4], reverse=False) # sort by short distance
+
+    for idx in range(len(boxes_new)):
+        if(idx == 0):
+            continue
+        x, y, w, h, dist = boxes_new[idx]
+
+        if((x > 0) and (y > 0)):
+            if((x+w < binary_img.shape[1]) and (y+h < binary_img.shape[0])):
+                binary_img[y:y+h, x:x+w] = 0
+
+    binary_inv = 255 - binary_img
+
+    contours = contouring(binary_img=binary_inv)
+    boxes = contour2box(contours=contours, padding=0)
+
+    boxes_new = []
+    for box in boxes:
+        x, y, w, h = box
+        boxes_new.append([x, y, w, h, w*h])
+
+    boxes_new = sorted(boxes_new, key=lambda l:l[4], reverse=True) # sort by bigger box
+
+    for idx in range(len(boxes_new)):
+        if(idx <= 1):
+            continue
+        x, y, w, h, dist = boxes_new[idx]
+
+        if((x > 0) and (y > 0)):
+            if((x+w < binary_inv.shape[1]) and (y+h < binary_inv.shape[0])):
+                binary_inv[y:y+h, x:x+w] = 0
+
+    binary_rev = 255 - binary_inv
+
+    return binary_rev
