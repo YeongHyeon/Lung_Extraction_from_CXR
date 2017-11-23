@@ -154,7 +154,7 @@ def rid_repetition(boxes=None, binary_img=None):
                 if((x_i+w_i < binary_img.shape[1]) and (y_i+h_i < binary_img.shape[0])):
                     box_rid.append([x_i, y_i, w_i, h_i])
 
-    return boxes
+    return box_rid
 
 def density_filter(binary_img=None, k_size=3, dense=0.5):
 
