@@ -121,9 +121,7 @@ def extract_segments(filename,
 
         contours = cvf.contouring(binary_img=thresh)
         boxes_tmp = cvf.contour2box(contours=contours, padding=20)
-        print(len(boxes_tmp))
         boxes = cvf.rid_repetition(boxes=boxes_tmp, binary_img=thresh)
-        print(len(boxes))
 
         if(os.path.exists(PACK_PATH+"/checkpoint/checker.index")):
             saver.restore(sess, PACK_PATH+"/checkpoint/checker")
