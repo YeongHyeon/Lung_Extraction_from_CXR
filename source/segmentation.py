@@ -139,10 +139,7 @@ def extract_segments(filename,
                     if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
 
                         pad = cvf.zero_padding(image=thresh[y:y+h, x:x+w], height=500, width=500)
-
                         pad2 = cvf.remain_only_biggest(binary_img=pad)
-                        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_1_"+str(cnt)+".png", image=pad2)
-
                         pad_res = cvf.zero_padding(image=resized[y:y+h, x:x+w], height=500, width=500)
 
                         xdata = pad_res*(pad2/255)
