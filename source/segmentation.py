@@ -110,10 +110,10 @@ def extract_segments(filename,
         adap = cvf.adaptiveThresholding(binary_img=movavg, neighbor=111, blur=False, blur_size=3)
         cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_adap.png", image=255-adap)
 
-        making = resized*((255-adap)/255)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_result1.png", image=making)
+        masking = resized*((255-adap)/255)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_result1.png", image=masking)
 
-        movavg = cvf.moving_avg_filter(binary_img=making, k_size=5)
+        movavg = cvf.moving_avg_filter(binary_img=masking, k_size=5)
         cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_result2.png", image=movavg)
 
         ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.5, 255, cv2.THRESH_BINARY_INV)
