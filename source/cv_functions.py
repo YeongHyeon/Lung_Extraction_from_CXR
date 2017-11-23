@@ -235,8 +235,27 @@ def remain_only_center(binary_img=None):
     contours = contouring(binary_img=binary_img)
     boxes = contour2box(contours=contours, padding=0)
 
+    box_rid = []
+    for i in range(len(boxes)): # rid repetition area
+        x_i, y_i, w_i, h_i = boxes[i]
+
+        cnt = 0
+        for j in range(len(boxes)):
+            x_j, y_j, w_j, h_j = boxes[j]
+
+            if(i == j):
+                continue
+
+            if((x_i >= x_j) and (y_i >= y_j) and (x_i+w_i <= x_j+w_j) and (y_i+h_i <= y_j+h_j)): # box_i is in box_j
+                cnt += 1
+
+        if(cnt == 0):
+            if((x_i > 0) and (y_i > 0)):
+                if((x_i+w_i < binary_img.shape[1]) and (y_i+h_i < binary_img.shape[0])):
+                    box_rid.append([x_i, y_i, w_i, h_i])
+
     boxes_new = []
-    for box in boxes:
+    for box in box_rid:
         x, y, w, h = box
 
         if((x > 0) and (y > 0)):
@@ -262,7 +281,8 @@ def remain_only_center(binary_img=None):
             if((x+w < binary_img.shape[1]) and (y+h < binary_img.shape[0])):
                 binary_img[y:y+h, x:x+w] = 0
 
-    binary_inv = 255 - dilation(binary_img=binary_img, k_size=3, iterations=5)
+    binary_img = dilation(binary_img=binary_img, k_size=2, iterations=5)
+    binary_inv = 255 - binary_img
 
     contours = contouring(binary_img=binary_inv)
     boxes = contour2box(contours=contours, padding=0)

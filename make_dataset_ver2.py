@@ -98,7 +98,7 @@ def main():
 
     print("Enter the path")
     # usr_path = input(">> ")
-    usr_path = "/home/yeonghyeon/Desktop/images/lung_image_20"
+    usr_path = "/home/yeonghyeon/Desktop/images/post_processing_1113"
 
     if(util.check_path(usr_path)):
         files = util.get_filelist(directory=usr_path, extensions=extensions)
