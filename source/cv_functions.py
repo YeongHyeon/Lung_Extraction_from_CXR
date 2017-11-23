@@ -131,6 +131,31 @@ def contour2box(contours=None, padding=10):
 
     return boxes
 
+def rid_repetition(boxes=None, binary_img=None):
+
+    box_rid = []
+    for i in range(len(boxes)): # rid repetition area
+        x_i, y_i, w_i, h_i = boxes[i]
+
+        cnt = 0
+        for j in range(len(boxes)):
+            x_j, y_j, w_j, h_j = boxes[j]
+
+            if(i == j):
+                continue
+            else:
+                if((x_j > 0) and (y_j > 0)):
+                    if((x_j+w_j < binary_img.shape[1]) and (y_j+h_j < binary_img.shape[0])):
+                        if((x_i >= x_j) and (y_i >= y_j) and (x_i+w_i <= x_j+w_j) and (y_i+h_i <= y_j+h_j)): # box_i is in box_j
+                            cnt += 1
+
+        if(cnt == 0):
+            if((x_i > 0) and (y_i > 0)):
+                if((x_i+w_i < binary_img.shape[1]) and (y_i+h_i < binary_img.shape[0])):
+                    box_rid.append([x_i, y_i, w_i, h_i])
+
+    return boxes
+
 def density_filter(binary_img=None, k_size=3, dense=0.5):
 
     clone = binary_img
@@ -235,24 +260,7 @@ def remain_only_center(binary_img=None):
     contours = contouring(binary_img=binary_img)
     boxes = contour2box(contours=contours, padding=0)
 
-    box_rid = []
-    for i in range(len(boxes)): # rid repetition area
-        x_i, y_i, w_i, h_i = boxes[i]
-
-        cnt = 0
-        for j in range(len(boxes)):
-            x_j, y_j, w_j, h_j = boxes[j]
-
-            if(i == j):
-                continue
-
-            if((x_i >= x_j) and (y_i >= y_j) and (x_i+w_i <= x_j+w_j) and (y_i+h_i <= y_j+h_j)): # box_i is in box_j
-                cnt += 1
-
-        if(cnt == 0):
-            if((x_i > 0) and (y_i > 0)):
-                if((x_i+w_i < binary_img.shape[1]) and (y_i+h_i < binary_img.shape[0])):
-                    box_rid.append([x_i, y_i, w_i, h_i])
+    box_rid = rid_repetition(boxes=boxes, binary_img=binary_img)
 
     boxes_new = []
     for box in box_rid:
@@ -281,7 +289,7 @@ def remain_only_center(binary_img=None):
             if((x+w < binary_img.shape[1]) and (y+h < binary_img.shape[0])):
                 binary_img[y:y+h, x:x+w] = 0
 
-    binary_img = dilation(binary_img=binary_img, k_size=2, iterations=5)
+    binary_img = dilation(binary_img=binary_img, k_size=2, iterations=10)
     binary_inv = 255 - binary_img
 
     contours = contouring(binary_img=binary_inv)
@@ -330,6 +338,83 @@ def remain_only_center(binary_img=None):
         if(idx == 0):
             continue
         x, y, w, h, dist = boxes_new[idx]
+
+        if((x > 0) and (y > 0)):
+            if((x+w < binary_rev.shape[1]) and (y+h < binary_rev.shape[0])):
+                binary_rev[y:y+h, x:x+w] = 0
+
+    return binary_rev
+
+def remain_only_biggest(binary_img=None):
+
+
+    contours = contouring(binary_img=binary_img)
+    boxes = contour2box(contours=contours, padding=0)
+
+    box_rid = rid_repetition(boxes=boxes, binary_img=binary_img)
+
+    boxes_new = []
+    for box in box_rid:
+        x, y, w, h = box
+
+        if((x > 0) and (y > 0)):
+            if((x+w < binary_img.shape[1]) and (y+h < binary_img.shape[0])):
+                size = w * h
+                boxes_new.append([x, y, w, h, size])
+
+    boxes_new = sorted(boxes_new, key=lambda l:l[4], reverse=True) # sort by biggest order
+
+    for idx in range(len(boxes_new)):
+        if(idx == 0):
+            continue
+        x, y, w, h, size = boxes_new[idx]
+
+        if((x > 0) and (y > 0)):
+            if((x+w < binary_img.shape[1]) and (y+h < binary_img.shape[0])):
+                binary_img[y:y+h, x:x+w] = 0
+
+    binary_img = dilation(binary_img=binary_img, k_size=2, iterations=10)
+    binary_inv = 255 - binary_img
+
+    contours = contouring(binary_img=binary_inv)
+    boxes = contour2box(contours=contours, padding=0)
+
+    boxes_new = []
+    for box in boxes:
+        x, y, w, h = box
+        boxes_new.append([x, y, w, h, w*h])
+
+    boxes_new = sorted(boxes_new, key=lambda l:l[4], reverse=True) # sort by bigger box
+
+    for idx in range(len(boxes_new)):
+        if(idx <= 1):
+            continue
+        x, y, w, h, size = boxes_new[idx]
+
+        if((x > 0) and (y > 0)):
+            if((x+w < binary_inv.shape[1]) and (y+h < binary_inv.shape[0])):
+                binary_inv[y:y+h, x:x+w] = 0
+
+    binary_rev = 255 - binary_inv
+
+    contours = contouring(binary_img=binary_rev)
+    boxes = contour2box(contours=contours, padding=0)
+
+    boxes_new = []
+    for box in boxes:
+        x, y, w, h = box
+
+        if((x > 0) and (y > 0)):
+            if((x+w < binary_rev.shape[1]) and (y+h < binary_rev.shape[0])):
+                size = w * h
+                boxes_new.append([x, y, w, h, size])
+
+    boxes_new = sorted(boxes_new, key=lambda l:l[4], reverse=True) # sort by bigger box
+
+    for idx in range(len(boxes_new)):
+        if(idx == 0):
+            continue
+        x, y, w, h, size = boxes_new[idx]
 
         if((x > 0) and (y > 0)):
             if((x+w < binary_rev.shape[1]) and (y+h < binary_rev.shape[0])):

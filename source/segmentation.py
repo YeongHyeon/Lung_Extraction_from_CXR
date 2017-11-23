@@ -97,30 +97,31 @@ def extract_segments(filename,
         origin = cvf.load_image(path=filename)
         gray = cvf.rgb2gray(rgb=origin)
         resized = cvf.resizing(image=gray, width=500)
-        cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+".png", image=resized)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+".png", image=resized)
 
         mulmul = resized.copy()
         for i in range(20):
             ret,thresh = cv2.threshold(mulmul, np.average(mulmul)*0.3, 255, cv2.THRESH_BINARY)
-            cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh1.png", image=thresh)
+            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh1.png", image=thresh)
 
             mulmul = cvf.normalizing(binary_img=resized*(thresh / 255))
 
         movavg = cvf.moving_avg_filter(binary_img=mulmul, k_size=10)
         adap = cvf.adaptiveThresholding(binary_img=movavg, neighbor=111, blur=False, blur_size=3)
-        cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_adap.png", image=255-adap)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_adap.png", image=255-adap)
 
-        result = resized*((255-adap)/255)
-        cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_result1.png", image=result)
+        making = resized*((255-adap)/255)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_result1.png", image=making)
 
-        movavg = cvf.moving_avg_filter(binary_img=result, k_size=10)
-        cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_result2.png", image=movavg)
+        movavg = cvf.moving_avg_filter(binary_img=making, k_size=5)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_result2.png", image=movavg)
 
         ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.5, 255, cv2.THRESH_BINARY_INV)
-        cvf.save_image(path=PACK_PATH+"/images/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh2.png", image=thresh)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh2.png", image=thresh)
 
         contours = cvf.contouring(binary_img=thresh)
         boxes = cvf.contour2box(contours=contours, padding=20)
+        boxes = cvf.rid_repetition(boxes=boxes, binary_img=thresh)
 
         if(os.path.exists(PACK_PATH+"/checkpoint/checker.index")):
             saver.restore(sess, PACK_PATH+"/checkpoint/checker")
@@ -138,7 +139,10 @@ def extract_segments(filename,
                     if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
 
                         pad = cvf.zero_padding(image=thresh[y:y+h, x:x+w], height=500, width=500)
-                        pad2 = cvf.remain_only_center(binary_img=pad)
+
+                        pad2 = cvf.remain_only_biggest(binary_img=pad)
+                        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_1_"+str(cnt)+".png", image=pad2)
+
                         pad_res = cvf.zero_padding(image=resized[y:y+h, x:x+w], height=500, width=500)
 
                         xdata = pad_res*(pad2/255)
@@ -150,6 +154,8 @@ def extract_segments(filename,
                         boxes_pred.append([x, y, w, h, result, acc])
 
                         cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(round(acc, 3))+"_"+str(cnt)+".png", image=xdata)
+
+                        cnt += 1
 
             boxes_pred = sorted(boxes_pred, key=lambda l:l[4], reverse=True) # sort by result
             boxes_pred = sorted(boxes_pred, key=lambda l:l[5], reverse=True) # sort by acc
