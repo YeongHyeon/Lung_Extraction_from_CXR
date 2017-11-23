@@ -305,4 +305,34 @@ def remain_only_center(binary_img=None):
 
     binary_rev = 255 - binary_inv
 
+    contours = contouring(binary_img=binary_rev)
+    boxes = contour2box(contours=contours, padding=0)
+
+    boxes_new = []
+    for box in boxes:
+        x, y, w, h = box
+
+        if((x > 0) and (y > 0)):
+            if((x+w < binary_rev.shape[1]) and (y+h < binary_rev.shape[0])):
+
+                box_x = (x + (x + w)) / 2
+                box_y = (y + (y + h)) / 2
+
+                img_x = binary_rev.shape[1] / 2
+                img_y = binary_rev.shape[0] / 2
+
+                dist = np.sqrt((box_x - img_x)**2 + (box_y - img_y)**2)
+                boxes_new.append([x, y, w, h, dist])
+
+    boxes_new = sorted(boxes_new, key=lambda l:l[4], reverse=False) # sort by short distance
+
+    for idx in range(len(boxes_new)):
+        if(idx == 0):
+            continue
+        x, y, w, h, dist = boxes_new[idx]
+
+        if((x > 0) and (y > 0)):
+            if((x+w < binary_rev.shape[1]) and (y+h < binary_rev.shape[0])):
+                binary_rev[y:y+h, x:x+w] = 0
+
     return binary_rev
