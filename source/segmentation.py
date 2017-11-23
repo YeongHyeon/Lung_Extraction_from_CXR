@@ -19,7 +19,7 @@ def save_crops(image=None, boxes=None, ratio=1, file_name=None): # save the segm
         if((rx > 0) and (ry > 0)):
             if((rx+rw < image.shape[1]) and (ry+rh < image.shape[0])):
                 if((result == "lung_left") or (result == "lung_right")):
-                    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_"+str(result)+"_"+str(cnt)+"_"+str(int(acc*100))+".png", image=image[ry:ry+rh, rx:rx+rw])
+                    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_"+str(result)+"_"+str(cnt)+"_"+str(round(acc, 3))+".png", image=image[ry:ry+rh, rx:rx+rw])
                     cnt += 1
 
 def draw_boxes(image=None, boxes=None, ratio=1, file_name=None):
@@ -33,8 +33,8 @@ def draw_boxes(image=None, boxes=None, ratio=1, file_name=None):
                 if((result == "lung_left") or (result == "lung_right")):
                     cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (255, 255, 255), 5)
                     cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (0, 255, 0), 2)
-                    cv2.putText(image, result+" "+str(int(acc*100))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 3)
-                    cv2.putText(image, result+" "+str(int(acc*100))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    cv2.putText(image, result+" "+str(round(acc, 3))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 3)
+                    cv2.putText(image, result+" "+str(round(acc, 3))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
 
     cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_origin.png", image=image)
@@ -149,7 +149,7 @@ def extract_segments(filename,
 
                         boxes_pred.append([x, y, w, h, result, acc])
 
-                        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(int(acc*100))+"_"+str(cnt)+".png", image=xdata)
+                        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(round(acc, 3))+"_"+str(cnt)+".png", image=xdata)
 
             boxes_pred = sorted(boxes_pred, key=lambda l:l[4], reverse=True) # sort by result
             boxes_pred = sorted(boxes_pred, key=lambda l:l[5], reverse=True) # sort by acc
