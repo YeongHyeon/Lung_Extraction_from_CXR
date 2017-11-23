@@ -44,7 +44,8 @@ def get_dir_and_file_name(path=None):
 
     tmp_name = path.split("/")
     tmp_sub = tmp_name[len(tmp_name)-2]
-    tmp_file = tmp_name[len(tmp_name)-2]+"_"+tmp_name[len(tmp_name)-1].split(".")[0]
+    # tmp_file = tmp_name[len(tmp_name)-2]+"_"+tmp_name[len(tmp_name)-1].split(".")[0]
+    tmp_file = tmp_name[len(tmp_name)-1].split(".")[0]
 
     return tmp_sub, tmp_file
 
