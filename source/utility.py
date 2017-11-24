@@ -82,9 +82,13 @@ def get_filelist(directory=None, extensions=None): # make directory list from di
 
 def copy_file(origin, copy):
 
+    cnt = 0
     for ori in origin:
+
         tmp_sub, tmp_file = get_dir_and_file_name(path=ori)
-        shutil.copy(ori, copy+"/"+str(tmp_file)+".jpg")
+        shutil.copy(ori, copy+"/"+str(tmp_file)+str(cnt)+".png")
+
+        cnt += 1
 
 def shuffle_csv(filename=None):
     f = open(filename+".csv", "r")

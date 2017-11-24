@@ -40,9 +40,14 @@ def split_data(path=None, directories=None, extensions=None):
         test = fi_list[tr_point:te_point]
         valid = fi_list[te_point:va_point]
 
-        util.copy_file(train, PACK_PATH+"/train/"+di)
-        util.copy_file(test, PACK_PATH+"/test/"+di)
-        util.copy_file(valid, PACK_PATH+"/valid/"+di)
+        print("train:\t%d" %(len(train)))
+        print("test:\t%d" %(len(test)))
+        print("valid:\t%d" %(len(valid)))
+        print("")
+
+        util.copy_file(origin=train, copy=PACK_PATH+"/train/"+di)
+        util.copy_file(origin=test, copy=PACK_PATH+"/test/"+di)
+        util.copy_file(origin=valid, copy=PACK_PATH+"/valid/"+di)
 
     print("Split the datas!")
 
