@@ -152,16 +152,16 @@ def convolution_neural_network(x, y_, training=None, height=None, width=None, ch
     resi_1 = residual_block(inputs=x_data, filters=2, k_size=5, stride=1)
     maxpool_1 = maxpool(inputs=resi_1, pool_size=2)
 
-    resi_2 = residual_block(inputs=maxpool_1, filters=2, k_size=5, stride=1)
+    resi_2 = residual_block(inputs=maxpool_1, filters=4, k_size=5, stride=1)
     maxpool_2 = maxpool(inputs=resi_2, pool_size=2)
 
-    resi_3 = residual_block(inputs=maxpool_2, filters=2, k_size=5, stride=1)
+    resi_3 = residual_block(inputs=maxpool_2, filters=8, k_size=5, stride=1)
     maxpool_3 = maxpool(inputs=resi_3, pool_size=2)
 
-    resi_4 = residual_block(inputs=maxpool_3, filters=2, k_size=5, stride=1)
+    resi_4 = residual_block(inputs=maxpool_3, filters=16, k_size=5, stride=1)
     maxpool_4 = maxpool(inputs=resi_4, pool_size=2)
 
-    resi_5 = residual_block(inputs=maxpool_4, filters=2, k_size=5, stride=1)
+    resi_5 = residual_block(inputs=maxpool_4, filters=32, k_size=5, stride=1)
     maxpool_5 = maxpool(inputs=resi_5, pool_size=2)
 
     drop_1 = dropout(inputs=maxpool_5, ratio=0.5, train=training)
