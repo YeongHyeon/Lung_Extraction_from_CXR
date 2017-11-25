@@ -1,7 +1,7 @@
 <h1>Lung segmentation using Convolutional-Neural-Network</h1>
 
 <p>
-<img src="readme/model.png">
+<img src="readme/model02.png">
 </p>
 
 <p>
