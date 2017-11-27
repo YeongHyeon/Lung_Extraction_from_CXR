@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/yeonghyeon/Desktop/lung_segmentation/source/../checkpoint/checker"
+all_model_checkpoint_paths: "/home/yeonghyeon/Desktop/lung_segmentation/source/../checkpoint/checker"
