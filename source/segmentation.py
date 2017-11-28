@@ -19,7 +19,7 @@ def save_crops(image=None, boxes=None, ratio=1, file_name=None): # save the segm
         if((rx > 0) and (ry > 0)):
             if((rx+rw < image.shape[1]) and (ry+rh < image.shape[0])):
                 if((result == "lung_left") or (result == "lung_right")):
-                    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_"+str(result)+"_"+str(cnt)+"_"+str(round(acc, 3))+".png", image=image[ry:ry+rh, rx:rx+rw])
+                    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_"+str(result)+"_"+str(cnt)+"_crop"+".png", image=image[ry:ry+rh, rx:rx+rw])
                     cnt += 1
 
 def draw_boxes(image=None, boxes=None, ratio=1, file_name=None):
@@ -150,7 +150,7 @@ def extract_segments(filename,
 
                         boxes_pred.append([x, y, w, h, result, acc])
 
-                        # cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(round(acc, 3))+"_"+str(cnt)+".png", image=xdata)
+                        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(round(acc, 3))+"_"+str(cnt)+".png", image=xdata)
 
                         cnt += 1
 
