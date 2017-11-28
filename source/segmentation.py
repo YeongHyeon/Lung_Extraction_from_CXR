@@ -150,7 +150,7 @@ def extract_segments(filename,
 
                         boxes_pred.append([x, y, w, h, result, acc])
 
-                        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(round(acc, 3))+"_"+str(cnt)+".png", image=xdata)
+                        # cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(round(acc, 3))+"_"+str(cnt)+".png", image=xdata)
 
                         cnt += 1
 
