@@ -122,8 +122,9 @@ def save_graph_as_image(train_list, test_list, ylabel=""):
 
     x = np.arange(len(train_list))
     plt.clf()
-    plt.plot(x, train_list, label="train "+ylabel, linewidth=1)
-    plt.plot(x, test_list, label="test "+ylabel, linewidth=1)
+    plt.rcParams['lines.linewidth'] = 1
+    plt.plot(x, train_list, label="train "+ylabel)
+    plt.plot(x, test_list, label="test "+ylabel)
     plt.xlabel("step")
     plt.ylabel(ylabel)
     plt.ylim(-0.1, max([1, max(train_list), max(test_list)])*1.1)
