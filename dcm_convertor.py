@@ -8,7 +8,7 @@ import source.utility as util
 
 extensions = ["DCM", "dcm"]
 import dicom
-
+import tifffile as tiff
 
 print("\nEnter the path")
 usr_path = input(">> ")
@@ -33,7 +33,7 @@ if(util.check_path(usr_path)):
             print("TypeError: No pixel data found in this dataset.")
         else:
             sumx = np.sum(dicom_numpy) / (dicom_numpy.shape[0]*dicom_numpy.shape[1])
-            dicom_normal = (dicom_numpy / sumx) * 127
+            dicom_normal = (dicom_numpy / sumx) * (2**7-1)
 
             # area1 = np.mean(dicom_normal[:int(dicom_numpy.shape[0]/4), :int(dicom_numpy.shape[1]/4)])
             # area2 = np.mean(dicom_normal[int(dicom_numpy.shape[0]/4*3):, :int(dicom_numpy.shape[1]/4)])
@@ -43,5 +43,9 @@ if(util.check_path(usr_path)):
             # threshold = np.mean([area1, area2, area3, area4])
             # if(threshold > 127):
             #     dicom_normal = 255 - dicom_normal
-            # print(main_dir)
             cvf.save_image(path=main_dir, filename=tmp_file+".bmp", image=dicom_normal)
+
+            dist = (2**16-1) / np.max(dicom_numpy)
+            dicom_normal = dicom_numpy * dist
+            tiff.imsave(main_dir+tmp_file+".tiff", dicom_normal.astype(np.uint16))
+            tmp = tiff.imread(main_dir+tmp_file+".tiff")
