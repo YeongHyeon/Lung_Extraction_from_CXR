@@ -50,7 +50,7 @@ def training_process(sess=None, dataset=None,
         test_loss_list.append(test_loss)
 
         if(i % stepper == 0):
-            print("step [ %d / %d ]\n Accuracy  train: %.5f  |  test: %.5f" %(i, steps, train_accuracy, test_accuracy))
+            print("step [ %d / %d ]\nAccuracy  train: %.5f  |  test: %.5f" %(i, steps, train_accuracy, test_accuracy))
             print("CE loss   train: %.5f  |  test: %.5f" %(train_loss, test_loss))
 
         sys.stdout.write("Training          \r")
