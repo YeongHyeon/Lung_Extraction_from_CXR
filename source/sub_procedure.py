@@ -59,7 +59,7 @@ def training_process(sess=None, dataset=None,
 
         sys.stdout.write(" Loading next batch\r")
         sys.stdout.flush()
-        train_batch = dataset.train.next_batch(batch_size=batch_size, start=start, end=end)
+        train_batch = dataset.train.next_batch(batch_size=batch_size)
 
         sys.stdout.write(" Training          \r")
         sys.stdout.flush()
@@ -109,7 +109,7 @@ def prediction_process(sess=None, dataset=None,
         line_cnt = 0
         tmp_label = 0
         for i in range(val_loop):
-            valid_batch = dataset.validation.next_batch(batch_size=1, nth=line_cnt)
+            valid_batch = dataset.validation.next_batch(batch_size=1, validation=True)
             line_cnt += 1
 
             if(tmp_label != int(np.argmax(valid_batch[1]))):

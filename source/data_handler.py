@@ -20,12 +20,12 @@ def split_data(path=None, directories=None, extensions=None):
         return
 
     for di in directories:
-        if(not(os.path.exists(PACK_PATH+"/train/"+di))):
-            os.mkdir(PACK_PATH+"/train/"+di)
-        if(not(os.path.exists(PACK_PATH+"/test/"+di))):
-            os.mkdir(PACK_PATH+"/test/"+di)
-        if(not(os.path.exists(PACK_PATH+"/valid/"+di))):
-            os.mkdir(PACK_PATH+"/valid/"+di)
+        if(not(os.path.exists(PACK_PATH+"/dataset/train/"+di))):
+            os.mkdir(PACK_PATH+"/dataset/train/"+di)
+        if(not(os.path.exists(PACK_PATH+"/dataset/test/"+di))):
+            os.mkdir(PACK_PATH+"/dataset/test/"+di)
+        if(not(os.path.exists(PACK_PATH+"/dataset/valid/"+di))):
+            os.mkdir(PACK_PATH+"/dataset/valid/"+di)
 
     for di in directories:
         fi_list = util.get_filelist(directory=path+"/"+di, extensions=extensions)
@@ -40,19 +40,21 @@ def split_data(path=None, directories=None, extensions=None):
         test = fi_list[tr_point:te_point]
         valid = fi_list[te_point:va_point]
 
-        print("train:\t%d" %(len(train)))
-        print("test:\t%d" %(len(test)))
-        print("valid:\t%d" %(len(valid)))
+        print("Class: "+str(di))
+        print("Train:\t%d" %(len(train)))
+        print("Test:\t%d" %(len(test)))
+        print("Valid:\t%d" %(len(valid)))
+        print()
 
-        util.copy_file(origin=train, copy=PACK_PATH+"/train/"+di)
-        util.copy_file(origin=test, copy=PACK_PATH+"/test/"+di)
-        util.copy_file(origin=valid, copy=PACK_PATH+"/valid/"+di)
+        util.copy_file(origin=train, copy=PACK_PATH+"/dataset/train/"+di)
+        util.copy_file(origin=test, copy=PACK_PATH+"/dataset/test/"+di)
+        util.copy_file(origin=valid, copy=PACK_PATH+"/dataset/valid/"+di)
 
     print("Split the datas!")
 
 def make_dataset(category=None, dirlist=None, height=32, width=32, channel=3, extensions=None):
 
-    print("\n** Make "+category+".csv")
+    print("\n** Make "+category)
 
     class_len = len(dirlist)
     io_mode = "w"
@@ -64,10 +66,12 @@ def make_dataset(category=None, dirlist=None, height=32, width=32, channel=3, ex
 
     channel = 1
     for di in dirlist:
-        fi_list = util.get_filelist(directory=PACK_PATH+"/"+category+"/"+di, extensions=extensions)
+        tmp_path = PACK_PATH+"/dataset/"+category+"/"+di
+        fi_list = util.get_filelist(directory=tmp_path, extensions=extensions)
 
         cnt = 0
         for fi in fi_list:
+            tmp_sub, tmp_file = util.get_dir_and_file_name(path=fi)
             cnt += 1
 
             image = cv2.imread(fi)
@@ -82,8 +86,7 @@ def make_dataset(category=None, dirlist=None, height=32, width=32, channel=3, ex
                 height, width, channel = resized_image.shape
             resized_image = resized_image.reshape((height*width*channel))
 
-            util.save_dataset_to_csv(save_as=category, label=label_number, data=resized_image, mode=io_mode)
-            io_mode = "a"
+            np.save(file=tmp_path+"/"+tmp_file, arr=resized_image)
 
         label_number += 1
 
@@ -121,12 +124,12 @@ def make(path=None, height=32, width=32, channel=3, extensions=None):
 
     print("\n** Make dataset")
 
-    check_list = ["dataset", "train", "test", "valid"]
     cate_list = ["train", "test", "valid"]
     shuffle_list = ["train", "test"]
 
-    for ch in check_list:
-        util.refresh_directory(PACK_PATH+"/"+ch)
+    util.refresh_directory(PACK_PATH+"/dataset")
+    for ca in cate_list:
+        util.refresh_directory(PACK_PATH+"/dataset/"+ca)
 
     dirlist = util.get_dirlist(path=path)
     split_data(path=path, directories=dirlist, extensions=extensions)
@@ -137,9 +140,6 @@ def make(path=None, height=32, width=32, channel=3, extensions=None):
 
     for ca in cate_list:
         make_dataset(category=ca, dirlist=dirlist, height=height, width=width, channel=channel, extensions=extensions)
-
-    for shu in shuffle_list:
-        util.shuffle_csv(filename=PACK_PATH+"/dataset/"+shu)
 
 def load():
 

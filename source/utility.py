@@ -1,5 +1,7 @@
 import os, glob, shutil, psutil, inspect, random
 
+import scipy.misc
+
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -49,7 +51,7 @@ def get_dir_and_file_name(path=None):
 
     return tmp_sub, tmp_file
 
-def get_dirlist(path=None, save=True): # make directory list from path
+def get_dirlist(path=None, dataset_dir="dataset", save=True): # make directory list from path
 
     directories = []
     for dirname in os.listdir(path):
@@ -58,7 +60,7 @@ def get_dirlist(path=None, save=True): # make directory list from path
     directories.sort()
 
     if(save):
-        f = open(PACK_PATH+"/dataset/labels.txt", "w")
+        f = open(PACK_PATH+"/"+dataset_dir+"/labels.txt", "w")
         for di in directories:
             f.write(str(di))
             f.write("\n")
@@ -82,39 +84,17 @@ def get_filelist(directory=None, extensions=None): # make directory list from di
 
 def copy_file(origin, copy):
 
+    origin.sort()
+
     cnt = 0
     for ori in origin:
+        tmp_ext = ori.split(".")
+        tmp_ext = tmp_ext[len(tmp_ext)-1]
 
         tmp_sub, tmp_file = get_dir_and_file_name(path=ori)
-        shutil.copy(ori, copy+"/"+str(tmp_file)+str(cnt)+".png")
+        shutil.copy(ori, copy+"/"+str(cnt)+"."+tmp_ext)
 
         cnt += 1
-
-def shuffle_csv(filename=None):
-    f = open(filename+".csv", "r")
-    lines = f.readlines()
-    f.close()
-
-    random.shuffle(lines)
-
-    f = open(filename+".csv", "w")
-    f.writelines(lines)
-    f.close()
-
-def save_dataset_to_csv(save_as="sample", label=None, data=None, mode='w'):
-
-    f = open(PACK_PATH+"/dataset/"+save_as+".csv", mode)
-
-    f.write(str(label))
-    f.write(",")
-
-    for da in data:
-        f.write(str(da))
-        f.write(",")
-
-    f.write("\n")
-
-    f.close()
 
 def save_graph_as_image(train_list, test_list, ylabel=""):
 
