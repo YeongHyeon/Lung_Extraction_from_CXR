@@ -30,51 +30,39 @@ def training_process(sess=None, dataset=None,
     if(steps >= 1000):
         stepper = int(steps / 100)
 
-    print("\n Training to "+str(steps)+" steps | Batch size: %d\n" %(batch_size))
+    print("\nTraining to "+str(steps)+" steps | Batch size: %d\n" %(batch_size))
 
-    tra_am = dataset.train.amount
-    start = 0
-    end = start + batch_size
     for i in range(steps):
-        if(start == 0):
-            train_batch = dataset.train.next_batch(batch_size=batch_size)
-        test_batch = dataset.test.next_batch(batch_size=batch_size)
 
-        if(i % stepper == 0):
-            sys.stdout.write(" Evaluation        \r")
-            sys.stdout.flush()
-
-            train_accuracy = accuracy.eval(feed_dict={x:train_batch[0], y_:train_batch[1], training:False})
-            test_accuracy = accuracy.eval(feed_dict={x:test_batch[0], y_:test_batch[1], training:False})
-            train_loss = loss.eval(feed_dict={x:train_batch[0], y_:train_batch[1], training:False})
-            test_loss = loss.eval(feed_dict={x:test_batch[0], y_:test_batch[1], training:False})
-
-            train_acc_list.append(train_accuracy)
-            test_acc_list.append(test_accuracy)
-            train_loss_list.append(train_loss)
-            test_loss_list.append(test_loss)
-
-            print(" step [ %d / %d ]\n Accuracy  train: %.5f  |  test: %.5f" %(i, steps, train_accuracy, test_accuracy))
-            print(" CE loss   train: %.5f  |  test: %.5f" %(train_loss, test_loss))
-
-        sys.stdout.write(" Loading next batch\r")
+        sys.stdout.write("Loading next batch\r")
         sys.stdout.flush()
         train_batch = dataset.train.next_batch(batch_size=batch_size)
+        test_batch = dataset.test.next_batch(batch_size=batch_size)
 
-        sys.stdout.write(" Training          \r")
+        train_accuracy = accuracy.eval(feed_dict={x:train_batch[0], y_:train_batch[1], training:False})
+        test_accuracy = accuracy.eval(feed_dict={x:test_batch[0], y_:test_batch[1], training:False})
+        train_loss = loss.eval(feed_dict={x:train_batch[0], y_:train_batch[1], training:False})
+        test_loss = loss.eval(feed_dict={x:test_batch[0], y_:test_batch[1], training:False})
+
+        train_acc_list.append(train_accuracy)
+        test_acc_list.append(test_accuracy)
+        train_loss_list.append(train_loss)
+        test_loss_list.append(test_loss)
+
+        if(i % stepper == 0):
+            print("step [ %d / %d ]\n Accuracy  train: %.5f  |  test: %.5f" %(i, steps, train_accuracy, test_accuracy))
+            print("CE loss   train: %.5f  |  test: %.5f" %(train_loss, test_loss))
+
+        sys.stdout.write("Training          \r")
         sys.stdout.flush()
         sess.run(train_step, feed_dict={x:train_batch[0], y_:train_batch[1], training:True})
 
-        start = end
-        if(start >= tra_am):
-            start = 0
-        end = start + batch_size
         saver.save(sess, PACK_PATH+"/checkpoint/checker")
 
     test_batch = dataset.test.next_batch(batch_size=batch_size)
     test_accuracy = accuracy.eval(feed_dict={x:test_batch[0], y_:test_batch[1], training:False})
     test_loss = loss.eval(feed_dict={x:test_batch[0], y_:test_batch[1], training:False})
-    print("\n Final Test accuracy, loss  | %.5f\t %.5f\n" %(test_accuracy, test_loss))
+    print("\nFinal Test accuracy, loss  | %.5f\t %.5f\n" %(test_accuracy, test_loss))
 
     util.save_graph_as_image(train_list=train_acc_list, test_list=test_acc_list, ylabel="accuracy")
     util.save_graph_as_image(train_list=train_loss_list, test_list=test_loss_list, ylabel="loss")
