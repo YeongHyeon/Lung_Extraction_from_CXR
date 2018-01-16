@@ -78,8 +78,6 @@ def get_filelist(directory=None, extensions=None): # make directory list from di
                     filename = os.path.join(dirName,filename)
                     file_list.append(filename)
 
-    print(str(len(file_list))+" files in "+directory)
-
     return file_list
 
 def copy_file(origin, copy):
