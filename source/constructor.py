@@ -55,7 +55,7 @@ class DataSet(object):
         if(batch_size == self._amount):
             indices = range(self._amount)
         elif(validation):
-            indices = np.asarray(int(self._valid_idx))
+            indices = np.asarray(int(self._valid_idx)).reshape((1, 1))
             self._valid_idx += 1
             if(self._valid_idx >= self._amount):
                 self._valid_idx += 0

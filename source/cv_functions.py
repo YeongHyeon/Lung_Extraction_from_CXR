@@ -225,9 +225,10 @@ def feeding_outside_filter(binary_img=None, thresh=127):
 
 def zero_padding(image=None, height=100, width=100, channel=1):
 
-    pad = np.zeros((height, width, 3))
-    if(channel != 1):
-        pad = np.zeros((height, width, channel))
+    pad = np.zeros((height, width, channel))
+    if(channel == 1):
+        pad = np.zeros((height, width))
+
     mid_y = int(pad.shape[0]/2) # mid of y
     mid_x = int(pad.shape[1]/2) # mid of x
     half_h = int(image.shape[0]/2) # height/2 of image

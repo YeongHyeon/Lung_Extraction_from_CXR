@@ -57,6 +57,7 @@ def main():
     usr_path = input(">> ")
     if(util.check_path(usr_path)):
         files = util.get_filelist(directory=usr_path, extensions=extensions)
+        files.sort()
         for fi in files:
             print(fi)
             seg.extract_segments(filename=fi, height=height, width=width, channel=channel, sess=sess, x_holder=data, training=training, prediction=prediction, saver=saver)
