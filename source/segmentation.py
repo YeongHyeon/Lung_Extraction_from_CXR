@@ -79,19 +79,22 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
                     cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_r)/2*100))+".png", image=image[y_start:y_end, x_start:x_end])
                     cnt += 1
 
-    max_idx = 0
-    tmp_size = 0
-    for idx in range(len(tmp_boxes)):
-        x, y, w, h, result, acc = tmp_boxes[idx]
-
-        if((w * h) > tmp_size):
-            tmp_size = w * h
-            max_idx = idx
-
     box_concat = []
-    x, y, w, h, result, acc = tmp_boxes[max_idx]
-    box_concat.append([x, y, w, h, result, acc])
+    try:
+        max_idx = 0
+        tmp_size = 0
+        for idx in range(len(tmp_boxes)):
+            x, y, w, h, result, acc = tmp_boxes[idx]
 
+            if((w * h) > tmp_size):
+                tmp_size = w * h
+                max_idx = idx
+
+        x, y, w, h, result, acc = tmp_boxes[max_idx]
+        box_concat.append([x, y, w, h, result, acc])
+    except:
+        pass
+    
     return box_concat
 
 def convert_image(image=None, height=None, width=None, channel=None):
