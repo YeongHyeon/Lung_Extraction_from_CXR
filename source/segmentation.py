@@ -31,13 +31,17 @@ def draw_boxes(image=None, boxes=None, ratio=1, file_name=None):
         if((rx > 0) and (ry > 0)):
             if((rx+rw < image.shape[1]) and (ry+rh < image.shape[0])):
                 if((result == "lung_left") or (result == "lung_right")):
-                    cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (255, 255, 255), 5)
+                    # cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (255, 255, 255), 5)
                     cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (0, 255, 0), 2)
-                    cv2.putText(image, result+" "+str(round(acc, 3))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 3)
-                    cv2.putText(image, result+" "+str(round(acc, 3))+"%", (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-
-    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_origin.png", image=image)
+                    # cv2.putText(image, result, (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 3)
+                    cv2.putText(image, result, (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                elif((result == "lung")):
+                    # cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (255, 255, 255), 5)
+                    cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (255, 0, 0), 2)
+                    # cv2.putText(image, result, (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 3)
+                    cv2.putText(image, result, (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+                else:
+                    pass
 
     return image
 
@@ -71,9 +75,11 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
 
             if((x_start > 0) and (y_start > 0)):
                 if((x_end < image.shape[1]) and (y_end < image.shape[0])):
-                    box_concat.append([rx, ry, rw, rh, result, acc])
+                    box_concat.append([x_start, y_start, x_end-x_start, y_end-y_start, "lung", (acc_r+acc_l)/2])
                     cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_r)/2*100))+".png", image=image[y_start:y_end, x_start:x_end])
                     cnt += 1
+
+    return box_concat
 
 def convert_image(image=None, height=None, width=None, channel=None):
 
@@ -162,14 +168,19 @@ def extract_segments(filename,
             # save_crops(image=origin, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
             save_crops(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
             # concatenate(image=origin, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
-            concatenate(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
+            concats = concatenate(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
 
             # origin = draw_boxes(image=origin, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
             # cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=origin)
 
-            origin_res = cvf.resizing(image=origin, width=500)
-            origin_res_clone = draw_boxes(image=origin_res, boxes=boxes_pred, ratio=1, file_name=tmp_file)
-            cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=origin_res_clone)
+            origin_res1 = cvf.resizing(image=origin, width=500)
+            origin_res2 = origin_res1.copy()
+            origin_res_lr = draw_boxes(image=origin_res1, boxes=boxes_pred, ratio=1, file_name=tmp_file)
+            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_lr.png", image=origin_res_lr)
+            origin_res_concat1 = draw_boxes(image=origin_res1, boxes=concats, ratio=1, file_name=tmp_file)
+            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_lr_and_concat.png", image=origin_res_concat1)
+            origin_res_concat2 = draw_boxes(image=origin_res2, boxes=concats, ratio=1, file_name=tmp_file)
+            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_concat.png", image=origin_res_concat2)
 
             # while(True):
             #     cv2.imshow('Image', origin)
