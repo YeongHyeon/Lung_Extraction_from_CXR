@@ -19,7 +19,7 @@ def save_crops(image=None, boxes=None, ratio=1, file_name=None): # save the segm
         if((rx > 0) and (ry > 0)):
             if((rx+rw < image.shape[1]) and (ry+rh < image.shape[0])):
                 if((result == "lung_left") or (result == "lung_right")):
-                    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_"+str(result)+"_"+str(cnt)+"_crop"+".png", image=image[ry:ry+rh, rx:rx+rw])
+                    # cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_"+str(result)+"_"+str(cnt)+"_crop"+".png", image=image[ry:ry+rh, rx:rx+rw])
                     cnt += 1
 
 def draw_boxes(image=None, boxes=None, ratio=1, file_name=None):
@@ -61,7 +61,7 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
                     box_right.append([rx, ry, rw, rh, result, acc])
 
     cnt = 0
-    box_concat = []
+    tmp_boxes = []
     for box_r in box_right:
         x_r, y_r, w_r, h_r, result_r, acc_r = box_r
 
@@ -75,9 +75,22 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
 
             if((x_start > 0) and (y_start > 0)):
                 if((x_end < image.shape[1]) and (y_end < image.shape[0])):
-                    box_concat.append([x_start, y_start, x_end-x_start, y_end-y_start, "lung", (acc_r+acc_l)/2])
+                    tmp_boxes.append([x_start, y_start, x_end-x_start, y_end-y_start, "lung", (acc_r+acc_l)/2])
                     cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_r)/2*100))+".png", image=image[y_start:y_end, x_start:x_end])
                     cnt += 1
+
+    max_idx = 0
+    tmp_size = 0
+    for idx in range(len(tmp_boxes)):
+        x, y, w, h, result, acc = tmp_boxes[idx]
+
+        if((w * h) > tmp_size):
+            tmp_size = w * h
+            max_idx = idx
+
+    box_concat = []
+    x, y, w, h, result, acc = tmp_boxes[max_idx]
+    box_concat.append([x, y, w, h, result, acc])
 
     return box_concat
 
@@ -156,7 +169,7 @@ def extract_segments(filename,
 
                         boxes_pred.append([x, y, w, h, result, acc])
 
-                        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(round(acc, 3))+"_"+str(cnt)+".png", image=xdata)
+                        # cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(int(round(acc, 2)*100))+"_"+str(cnt)+".png", image=xdata)
 
                         cnt += 1
 
