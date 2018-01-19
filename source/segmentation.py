@@ -117,7 +117,10 @@ def extract_segments(filename,
             util.make_path(path=PACK_PATH+"/results/"+str(tmp_file)+"/")
 
         origin = cvf.load_image(path=filename)
-        gray = cvf.rgb2gray(rgb=origin)
+        try:
+            gray = cvf.rgb2gray(rgb=origin)
+        except: # if origin image is grayscale
+            gray = origin
         resized = cvf.resizing(image=gray, width=500)
         cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre1_origin.png", image=resized)
 
