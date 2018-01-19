@@ -94,7 +94,7 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
         box_concat.append([x, y, w, h, result, acc])
     except:
         pass
-    
+
     return box_concat
 
 def convert_image(image=None, height=None, width=None, channel=None):
@@ -119,27 +119,28 @@ def extract_segments(filename,
         origin = cvf.load_image(path=filename)
         gray = cvf.rgb2gray(rgb=origin)
         resized = cvf.resizing(image=gray, width=500)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+".png", image=resized)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre1_origin.png", image=resized)
 
         mulmul = resized.copy()
         for i in range(20):
             ret,thresh = cv2.threshold(mulmul, np.average(mulmul)*0.3, 255, cv2.THRESH_BINARY)
-            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh1.png", image=thresh)
+            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre2_thresh.png", image=thresh)
 
             mulmul = cvf.normalizing(binary_img=resized*(thresh / 255))
+            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre3_normalize.png", image=mulmul)
 
         movavg = cvf.moving_avg_filter(binary_img=mulmul, k_size=10)
         adap = cvf.adaptiveThresholding(binary_img=movavg, neighbor=111, blur=False, blur_size=3)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_adap.png", image=255-adap)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre4_adaptrhesh.png", image=255-adap)
 
         masking = resized*((255-adap)/255)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_result1.png", image=masking)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre5_mask1.png", image=masking)
 
         movavg = cvf.moving_avg_filter(binary_img=masking, k_size=5)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_result2.png", image=movavg)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre6_mask2.png", image=movavg)
 
         ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.5, 255, cv2.THRESH_BINARY_INV)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_thresh2.png", image=thresh)
+        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre7_thresh.png", image=thresh)
 
         contours = cvf.contouring(binary_img=thresh)
         boxes_tmp = cvf.contour2box(contours=contours, padding=20)
