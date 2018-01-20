@@ -95,7 +95,81 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
     except:
         pass
 
-    return box_concat
+    return box_concat # return only one box
+
+def intersection_over_union(filename="", boxes=None, ratio=None):
+
+    #boxes is only one box.(concatenated lung)
+
+    f = open(PACK_PATH+"/BBox_List_2017.csv")
+    lines = f.readlines()
+    f.close
+
+    iou = 0
+    for idx in range(len(lines)):
+        if(idx == 0):
+            continue
+        imgname, diagnosis, box_x, box_y, box_w, box_h  = lines[idx].split(",")
+        box_x, box_y, box_w, box_h = float(box_x)/ratio, float(box_y)/ratio, float(box_w)/ratio, float(box_h)/ratio
+        area = abs((box_x+box_w)-box_x) * abs((box_y+box_h)-box_y)
+        if imgname in filename:
+            print(imgname)
+
+            for lung in boxes:
+                lung_x, lung_y, lung_w, lung_h, label, score = lung
+
+                # four points from diagnosis bbox.
+                dotlist = []
+                dotlist.append([box_x, box_y])
+                dotlist.append([box_x+box_w, box_y])
+                dotlist.append([box_x, box_y+box_h])
+                dotlist.append([box_x+box_w, box_y+box_h])
+
+                indot = []
+                outdot = []
+                for dot in range(len(dotlist)):
+                    dot_x, dot_y = dotlist[dot]
+                    if((lung_x <= dot_x) and (lung_y <= dot_y) and (lung_x+lung_w >= dot_x) and (lung_y+lung_h >= dot_y)):
+                        indot.append(dot)
+                    else:
+                        outdot.append(dot)
+
+                if(len(indot) >= 3): # four or three points in lung box.
+                    iou = 1
+                elif(len(indot) == 2): # two points in lung box
+                    inter = 0
+                    if((indot[0] == 0) and (indot[1] == 1)):
+                        inter = abs((box_x+box_w)-box_x) * abs((lung_y+lung_h)-box_y)
+                    elif((indot[0] == 0) and (indot[1] == 2)):
+                        inter = abs((box_y+box_h)-box_y) * abs((lung_x+lung_w)-box_x)
+                    elif((indot[0] == 1) and (indot[1] == 3)):
+                        inter = abs((box_y+box_h)-box_y) * abs((box_x+box_w)-lung_x)
+                    elif((indot[0] == 2) and (indot[1] == 3)):
+                        inter = abs((box_x+box_w)-box_x) * abs((box_y+box_h)-lung_y)
+                    if(inter != 0):
+                        iou = inter / area
+                    else:
+                        iou = 0
+                elif(len(indot) == 1): # one points in lung box
+                    inter = 0
+                    dot_x, dot_y = dotlist[indot[0]]
+                    if(indot[0] == 0):
+                        inter = abs((lung_x+lung_w)-dot_x) * abs((lung_y+lung_h)-dot_y)
+                    elif(indot[0] == 1):
+                        inter = abs((lung_x)-dot_x) * abs((lung_y+lung_h)-dot_y)
+                    elif(indot[0] == 2):
+                        inter = abs((lung_x+lung_w)-dot_x) * abs((lung_y)-dot_y)
+                    elif(indot[0] == 3):
+                        inter = abs((lung_x)-dot_x) * abs((lung_y)-dot_y)
+                    if(inter != 0):
+                        iou = inter / area
+                    else:
+                        iou = 0
+                else: # zero points in lung box
+                    iou = 0
+            break
+
+    return iou
 
 def convert_image(image=None, height=None, width=None, channel=None):
 
@@ -103,115 +177,124 @@ def convert_image(image=None, height=None, width=None, channel=None):
 
     return np.asarray(resized_image).reshape((1, height*width*channel))
 
-def extract_segments(filename,
+def extract_segments(usr_path, extensions=None,
                      height=None, width=None, channel=None,
                      sess=None, x_holder=None, training=None,
                      prediction=None, saver=None):
 
-    if(util.check_file(filename=filename)):
-        tmp_sub, tmp_file = util.get_dir_and_file_name(path=filename)
+    if(not(util.check_path(path=PACK_PATH+"/results/"))):
+        util.make_path(path=PACK_PATH+"/results/")
 
-        if(not(util.check_path(path=PACK_PATH+"/results/"))):
-            util.make_path(path=PACK_PATH+"/results/")
-        if(not(util.check_path(path=PACK_PATH+"/results/"+str(tmp_file)+"/"))):
-            util.make_path(path=PACK_PATH+"/results/"+str(tmp_file)+"/")
+    summf = open(PACK_PATH+"/results/summary.csv", "w")
+    summf.write("FILENAME")
+    summf.write(",")
+    summf.write("DETECT")
+    summf.write(",")
+    summf.write("IOU")
+    summf.write("\n")
 
-        origin = cvf.load_image(path=filename)
-        try:
-            gray = cvf.rgb2gray(rgb=origin)
-        except: # if origin image is grayscale
-            gray = origin
-        resized = cvf.resizing(image=gray, width=500)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre1_origin.png", image=resized)
+    files = util.get_filelist(directory=usr_path, extensions=extensions)
+    files.sort()
+    for filename in files:
+        print(filename)
 
-        mulmul = resized.copy()
-        for i in range(20):
-            ret,thresh = cv2.threshold(mulmul, np.average(mulmul)*0.3, 255, cv2.THRESH_BINARY)
-            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre2_thresh.png", image=thresh)
+        if(util.check_file(filename=filename)):
+            tmp_sub, tmp_file = util.get_dir_and_file_name(path=filename)
 
-            mulmul = cvf.normalizing(binary_img=resized*(thresh / 255))
-            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre3_normalize.png", image=mulmul)
+            if(not(util.check_path(path=PACK_PATH+"/results/"+str(tmp_file)+"/"))):
+                util.make_path(path=PACK_PATH+"/results/"+str(tmp_file)+"/")
 
-        movavg = cvf.moving_avg_filter(binary_img=mulmul, k_size=10)
-        adap = cvf.adaptiveThresholding(binary_img=movavg, neighbor=111, blur=False, blur_size=3)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre4_adaptrhesh.png", image=255-adap)
+            origin = cvf.load_image(path=filename)
+            try:
+                gray = cvf.rgb2gray(rgb=origin)
+            except: # if origin image is grayscale
+                gray = origin
+            resized = cvf.resizing(image=gray, width=500)
+            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre1_origin.png", image=resized)
 
-        masking = resized*((255-adap)/255)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre5_mask1.png", image=masking)
+            mulmul = resized.copy()
+            for i in range(20):
+                ret,thresh = cv2.threshold(mulmul, np.average(mulmul)*0.3, 255, cv2.THRESH_BINARY)
+                cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre2_thresh.png", image=thresh)
 
-        movavg = cvf.moving_avg_filter(binary_img=masking, k_size=5)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre6_mask2.png", image=movavg)
+                mulmul = cvf.normalizing(binary_img=resized*(thresh / 255))
+                cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre3_normalize.png", image=mulmul)
 
-        ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.5, 255, cv2.THRESH_BINARY_INV)
-        cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre7_thresh.png", image=thresh)
+            movavg = cvf.moving_avg_filter(binary_img=mulmul, k_size=10)
+            adap = cvf.adaptiveThresholding(binary_img=movavg, neighbor=111, blur=False, blur_size=3)
+            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre4_adaptrhesh.png", image=255-adap)
 
-        contours = cvf.contouring(binary_img=thresh)
-        boxes_tmp = cvf.contour2box(contours=contours, padding=20)
-        boxes = cvf.rid_repetition(boxes=boxes_tmp, binary_img=thresh)
+            masking = resized*((255-adap)/255)
+            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre5_mask1.png", image=masking)
 
-        if(os.path.exists(PACK_PATH+"/checkpoint/checker.index")):
-            saver.restore(sess, PACK_PATH+"/checkpoint/checker")
-            f = open(PACK_PATH+"/dataset/labels.txt", 'r')
-            content = f.readlines()
-            f.close()
-            for idx in range(len(content)):
-                content[idx] = content[idx][:len(content[idx])-1] # rid \n
+            movavg = cvf.moving_avg_filter(binary_img=masking, k_size=5)
+            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre6_mask2.png", image=movavg)
 
-            boxes_pred = []
-            cnt = 0
-            for b in boxes:
-                x, y, w, h = b
-                if((x > 0) and (y > 0)):
-                    if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
+            ret,thresh = cv2.threshold(movavg, np.average(movavg)*0.5, 255, cv2.THRESH_BINARY_INV)
+            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_pre7_thresh.png", image=thresh)
 
-                        pad = cvf.zero_padding(image=thresh[y:y+h, x:x+w], height=500, width=500)
-                        pad2 = cvf.remain_only_biggest(binary_img=pad)
-                        pad_res = cvf.zero_padding(image=resized[y:y+h, x:x+w], height=500, width=500)
+            contours = cvf.contouring(binary_img=thresh)
+            boxes_tmp = cvf.contour2box(contours=contours, padding=20)
+            boxes = cvf.rid_repetition(boxes=boxes_tmp, binary_img=thresh)
 
-                        xdata = pad_res*(pad2/255)
+            if(os.path.exists(PACK_PATH+"/checkpoint/checker.index")):
+                saver.restore(sess, PACK_PATH+"/checkpoint/checker")
+                f = open(PACK_PATH+"/dataset/labels.txt", 'r')
+                content = f.readlines()
+                f.close()
+                for idx in range(len(content)):
+                    content[idx] = content[idx][:len(content[idx])-1] # rid \n
 
-                        prob = sess.run(prediction, feed_dict={x_holder:convert_image(image=xdata, height=height, width=width, channel=channel), training:False})
-                        result = str(content[int(np.argmax(prob))])
-                        acc = np.max(prob)
+                boxes_pred = []
+                cnt = 0
+                for b in boxes:
+                    x, y, w, h = b
+                    if((x > 0) and (y > 0)):
+                        if((x+w < resized.shape[1]) and (y+h < resized.shape[0])):
 
-                        boxes_pred.append([x, y, w, h, result, acc])
+                            pad = cvf.zero_padding(image=thresh[y:y+h, x:x+w], height=500, width=500)
+                            pad2 = cvf.remain_only_biggest(binary_img=pad)
+                            pad_res = cvf.zero_padding(image=resized[y:y+h, x:x+w], height=500, width=500)
 
-                        # cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(int(round(acc, 2)*100))+"_"+str(cnt)+".png", image=xdata)
+                            xdata = pad_res*(pad2/255)
 
-                        cnt += 1
+                            prob = sess.run(prediction, feed_dict={x_holder:convert_image(image=xdata, height=height, width=width, channel=channel), training:False})
+                            result = str(content[int(np.argmax(prob))])
+                            acc = np.max(prob)
 
-            boxes_pred = sorted(boxes_pred, key=lambda l:l[4], reverse=True) # sort by result
-            boxes_pred = sorted(boxes_pred, key=lambda l:l[5], reverse=True) # sort by acc
+                            boxes_pred.append([x, y, w, h, result, acc])
 
-            ratio = round(origin.shape[0] / resized.shape[0])
+                            # cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_"+str(result)+"_"+str(int(round(acc, 2)*100))+"_"+str(cnt)+".png", image=xdata)
 
-            # save_crops(image=origin, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
-            save_crops(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
-            # concatenate(image=origin, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
-            concats = concatenate(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
+                            cnt += 1
 
-            # origin = draw_boxes(image=origin, boxes=boxes_pred, ratio=ratio, file_name=tmp_file)
-            # cvf.save_image(path=PACK_PATH+"/results/", filename=str(tmp_file)+"_origin.png", image=origin)
+                boxes_pred = sorted(boxes_pred, key=lambda l:l[4], reverse=True) # sort by result
+                boxes_pred = sorted(boxes_pred, key=lambda l:l[5], reverse=True) # sort by acc
 
-            origin_res1 = cvf.resizing(image=origin, width=500)
-            origin_res2 = origin_res1.copy()
-            origin_res_lr = draw_boxes(image=origin_res1, boxes=boxes_pred, ratio=1, file_name=tmp_file)
-            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_lr.png", image=origin_res_lr)
-            origin_res_concat1 = draw_boxes(image=origin_res1, boxes=concats, ratio=1, file_name=tmp_file)
-            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_lr_and_concat.png", image=origin_res_concat1)
-            origin_res_concat2 = draw_boxes(image=origin_res2, boxes=concats, ratio=1, file_name=tmp_file)
-            cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_concat.png", image=origin_res_concat2)
+                ratio = origin.shape[0] / resized.shape[0]
 
-            # while(True):
-            #     cv2.imshow('Image', origin)
-            #
-            #     key = cv2.waitKey(1) & 0xFF
-            #     if(key == ord("q")):
-            #         print("window is closed.")
-            #         break
-            #
-            # cv2.destroyAllWindows()
+                save_crops(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
+                concats = concatenate(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
+
+                iou = intersection_over_union(filename=filename, boxes=concats, ratio=ratio)
+                summf.write(str(filename))
+                summf.write(",")
+                summf.write(str(len(concats)))
+                summf.write(",")
+                summf.write(str(iou))
+                summf.write("\n")
+
+                origin_res1 = cvf.resizing(image=origin, width=500)
+                origin_res2 = origin_res1.copy()
+                origin_res_lr = draw_boxes(image=origin_res1, boxes=boxes_pred, ratio=1, file_name=tmp_file)
+                cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_lr.png", image=origin_res_lr)
+                origin_res_concat1 = draw_boxes(image=origin_res1, boxes=concats, ratio=1, file_name=tmp_file)
+                cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_lr_and_concat.png", image=origin_res_concat1)
+                origin_res_concat2 = draw_boxes(image=origin_res2, boxes=concats, ratio=1, file_name=tmp_file)
+                cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_concat.png", image=origin_res_concat2)
+
+            else:
+                print("You must training first!")
         else:
-            print("You must training first!")
-    else:
-        print("Invalid File: "+str(filename))
+            print("Invalid File: "+str(filename))
+    summf.close()
