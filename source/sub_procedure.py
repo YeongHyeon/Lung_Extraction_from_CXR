@@ -54,7 +54,7 @@ def training_process(sess=None, dataset=None,
         if(i % stepper == 0):
             print("step [ %d / %d ]\nAccuracy  train: %.5f  |  test: %.5f" %(i, steps, train_accuracy, test_accuracy))
             print("CE loss   train: %.5f  |  test: %.5f" %(train_loss, test_loss))
-        
+
         sys.stdout.write("Training          \r")
         sys.stdout.flush()
         sess.run(train_step, feed_dict={x:train_batch[0], y_:train_batch[1], training:True})
@@ -75,6 +75,9 @@ def prediction_process(sess=None, dataset=None,
                        validation=0):
 
     print("\n** Prediction process start!")
+
+    prob_list = []
+    prob_matrix = np.empty((0, dataset.validation.class_num), float)
 
     val_am = dataset.validation.amount
     if(validation == 0):
@@ -105,7 +108,11 @@ def prediction_process(sess=None, dataset=None,
             if(tmp_label != int(np.argmax(valid_batch[1]))):
                 tmp_label = int(np.argmax(valid_batch[1]))
 
+                prob_list.append(prob_matrix)
+                prob_matrix = np.empty((0, dataset.validation.class_num), float)
+
             prob = sess.run(prediction, feed_dict={x:valid_batch[0], training:False})
+            prob_matrix = np.append(prob_matrix, np.asarray(prob), axis=0)
 
             print("\n Prediction")
             print(" Real:   "+str(content[int(np.argmax(valid_batch[1]))]))
@@ -114,6 +121,8 @@ def prediction_process(sess=None, dataset=None,
             if(content[int(np.argmax(valid_batch[1]))] == content[int(np.argmax(prob))]):
                 correct = correct + 1
 
+        prob_list.append(prob_matrix)
+        util.save_confusion(save_as="confusion", labels=content, lists=prob_list, size=dataset.validation.class_num)
         print("\n Accuracy: %.5f" %(float(correct)/float(val_loop)))
     else:
         print("You must training first!")

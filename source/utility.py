@@ -119,3 +119,54 @@ def save_graph_as_image(train_list, test_list, ylabel=""):
     now = datetime.now()
 
     plt.savefig("./graph/"+now.strftime('%Y%m%d_%H%M%S%f')+"_"+ylabel+".png")
+
+def save_confusion(save_as="sample", labels=None, lists=None, size=None):
+
+    print(" Save confusion in ./confusion")
+
+    confusion = np.empty((0, size), float)
+
+    for li in lists:
+        tmp_confu = li[0]
+
+        for idx in range(li.shape[0]):
+            if(idx == 0):
+                pass
+            else:
+                tmp_confu = np.sum((tmp_confu, li[idx]), axis=0) # sum the same label probs
+
+        tmp_confu = tmp_confu / li.shape[0] # divide total prob
+
+        confusion = np.append(confusion, np.asarray(tmp_confu).reshape((1, len(tmp_confu))), axis=0)
+
+    if(not(check_path(PACK_PATH+"/confusion"))):
+        os.mkdir(PACK_PATH+"/confusion")
+
+    result = np.kron(confusion, np.ones((confusion.shape[0]*10, confusion.shape[1]*10))) # pump the matrix for save image
+
+    now = datetime.now()
+
+    # save as csv
+    f = open(PACK_PATH+"/confusion/"+now.strftime('%Y%m%d_%H%M%S%f')+"_"+save_as+".csv", "w")
+
+    f.write("X")
+    f.write(",")
+    for la in labels:
+        f.write(la)
+        f.write(",")
+    f.write("\n")
+
+    for row in range(confusion.shape[0]):
+        f.write(labels[row])
+        f.write(",")
+
+        for con_elm in confusion[row]:
+            f.write(str(round(con_elm, 5)))
+            f.write(",")
+        f.write("\n")
+
+    f.close()
+
+    result[0][0] = 1
+    # save as image
+    scipy.misc.imsave(PACK_PATH+"/confusion/"+now.strftime('%Y%m%d_%H%M%S%f')+"_"+save_as+".jpg", result)
