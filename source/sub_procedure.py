@@ -39,6 +39,8 @@ def training_process(sess=None, dataset=None,
         train_batch = dataset.train.next_batch(batch_size=batch_size)
         test_batch = dataset.test.next_batch(batch_size=batch_size)
 
+        sys.stdout.write("Evalueation       \r")
+        sys.stdout.flush()
         train_accuracy = accuracy.eval(feed_dict={x:train_batch[0], y_:train_batch[1], training:False})
         test_accuracy = accuracy.eval(feed_dict={x:test_batch[0], y_:test_batch[1], training:False})
         train_loss = loss.eval(feed_dict={x:train_batch[0], y_:train_batch[1], training:False})
@@ -52,7 +54,7 @@ def training_process(sess=None, dataset=None,
         if(i % stepper == 0):
             print("step [ %d / %d ]\nAccuracy  train: %.5f  |  test: %.5f" %(i, steps, train_accuracy, test_accuracy))
             print("CE loss   train: %.5f  |  test: %.5f" %(train_loss, test_loss))
-
+        
         sys.stdout.write("Training          \r")
         sys.stdout.flush()
         sess.run(train_step, feed_dict={x:train_batch[0], y_:train_batch[1], training:True})

@@ -19,6 +19,7 @@ class DataSet(object):
         self._channel = channel
         self._valid_idx = 0
         self._amount = len(util.get_filelist(directory=PACK_PATH+"/dataset/"+str(self._who_am_i), extensions=["npy"]))
+        self.total_data, self.total_label = self.pre_load()
 
     @property
     def amount(self):
@@ -32,25 +33,29 @@ class DataSet(object):
     def data_size(self):
         return self._data_len, self._height, self._width, self._channel
 
-    def next_batch(self, batch_size=10, validation=False):
+    def pre_load(self):
 
         find_path = PACK_PATH+"/dataset/"+str(self._who_am_i)
         dirlist = util.get_dirlist(path=find_path, dataset_dir="dataset")
 
-        batch_label = []
-        batch_data = []
+        total_label = []
+        total_data = []
 
         tmp_label = 0
         for di in dirlist:
             fi_list = util.get_filelist(directory=find_path+"/"+di, extensions=["npy"])
 
             for fi in fi_list:
-                batch_label.append(tmp_label)
+                total_label.append(tmp_label)
 
                 tmp_data = np.load(file=fi)
-                batch_data.append(tmp_data)
+                total_data.append(tmp_data)
 
             tmp_label += 1
+
+        return total_data, total_label
+
+    def next_batch(self, batch_size=10, validation=False):
 
         if(batch_size == self._amount):
             indices = range(self._amount)
@@ -68,9 +73,9 @@ class DataSet(object):
         for idx in indices:
             idx = int(idx)
 
-            tmp_label = batch_label[idx]
+            tmp_label = self.total_label[idx]
 
-            tmp_data = batch_data[idx]
+            tmp_data = self.total_data[idx]
             tmp_data = np.asarray(tmp_data).reshape((1, len(tmp_data)))
 
             label = np.append(label, np.eye(self._class_len)[int(np.asfarray(tmp_label))].reshape(1, self._class_len), axis=0)
