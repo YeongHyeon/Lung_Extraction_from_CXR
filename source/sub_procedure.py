@@ -76,9 +76,6 @@ def prediction_process(sess=None, dataset=None,
 
     print("\n** Prediction process start!")
 
-    prob_list = []
-    prob_matrix = np.empty((0, dataset.validation.class_num), float)
-
     val_am = dataset.validation.amount
     if(validation == 0):
         val_loop = val_am
@@ -101,6 +98,8 @@ def prediction_process(sess=None, dataset=None,
 
         line_cnt = 0
         tmp_label = 0
+        confusion_list = []
+
         for i in range(val_loop):
             valid_batch = dataset.validation.next_batch(batch_size=1, validation=True)
             line_cnt += 1
@@ -108,11 +107,10 @@ def prediction_process(sess=None, dataset=None,
             if(tmp_label != int(np.argmax(valid_batch[1]))):
                 tmp_label = int(np.argmax(valid_batch[1]))
 
-                prob_list.append(prob_matrix)
-                prob_matrix = np.empty((0, dataset.validation.class_num), float)
-
             prob = sess.run(prediction, feed_dict={x:valid_batch[0], training:False})
-            prob_matrix = np.append(prob_matrix, np.asarray(prob), axis=0)
+
+            tmp_prob = np.asarray(prob)
+            confusion_list.append([int(np.argmax(valid_batch[1])), tmp_prob])
 
             print("\n Prediction")
             print(" Real:   "+str(content[int(np.argmax(valid_batch[1]))]))
@@ -121,8 +119,8 @@ def prediction_process(sess=None, dataset=None,
             if(content[int(np.argmax(valid_batch[1]))] == content[int(np.argmax(prob))]):
                 correct = correct + 1
 
-        prob_list.append(prob_matrix)
-        util.save_confusion(save_as="confusion", labels=content, lists=prob_list, size=dataset.validation.class_num)
+        confusion_list = sorted(confusion_list, key=lambda l:l[0], reverse=False)
+        util.save_confusion(save_as="confusion", labels=content, confusion_list=confusion_list, class_num=dataset.validation.class_num)
         print("\n Accuracy: %.5f" %(float(correct)/float(val_loop)))
     else:
         print("You must training first!")

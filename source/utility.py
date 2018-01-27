@@ -120,24 +120,28 @@ def save_graph_as_image(train_list, test_list, ylabel=""):
 
     plt.savefig("./graph/"+now.strftime('%Y%m%d_%H%M%S%f')+"_"+ylabel+".png")
 
-def save_confusion(save_as="sample", labels=None, lists=None, size=None):
+def save_confusion(save_as="sample", labels=None, confusion_list=None, class_num=None):
 
     print(" Save confusion in ./confusion")
 
-    confusion = np.empty((0, size), float)
+    tmp_confu = np.zeros((class_num), float)
+    confusion = np.zeros((0, class_num), float)
 
-    for li in lists:
-        tmp_confu = li[0]
+    tmp_label = 0
+    for cl in confusion_list:
 
-        for idx in range(li.shape[0]):
-            if(idx == 0):
-                pass
-            else:
-                tmp_confu = np.sum((tmp_confu, li[idx]), axis=0) # sum the same label probs
+        if(tmp_label != cl[0]):
+            tmp_label = cl[0]
 
-        tmp_confu = tmp_confu / li.shape[0] # divide total prob
+            confusion = np.append(confusion, np.asarray(tmp_confu).reshape((1, class_num)), axis=0)
+            tmp_confu = np.zeros((class_num), float)
 
-        confusion = np.append(confusion, np.asarray(tmp_confu).reshape((1, len(tmp_confu))), axis=0)
+        if(tmp_label == cl[0]):
+
+            pred = np.eye(class_num)[int(np.argmax(cl[1]))]
+            tmp_confu = np.sum((tmp_confu, pred), axis=0) # sum the same label probs
+
+    confusion = np.append(confusion, np.asarray(tmp_confu).reshape((1, class_num)), axis=0)
 
     if(not(check_path(PACK_PATH+"/confusion"))):
         os.mkdir(PACK_PATH+"/confusion")
@@ -149,7 +153,7 @@ def save_confusion(save_as="sample", labels=None, lists=None, size=None):
     # save as csv
     f = open(PACK_PATH+"/confusion/"+now.strftime('%Y%m%d_%H%M%S%f')+"_"+save_as+".csv", "w")
 
-    f.write("X")
+    f.write("Real\\prediction")
     f.write(",")
     for la in labels:
         f.write(la)
@@ -167,6 +171,5 @@ def save_confusion(save_as="sample", labels=None, lists=None, size=None):
 
     f.close()
 
-    result[0][0] = 1
     # save as image
-    scipy.misc.imsave(PACK_PATH+"/confusion/"+now.strftime('%Y%m%d_%H%M%S%f')+"_"+save_as+".jpg", result)
+    scipy.misc.imsave(PACK_PATH+"/confusion/"+now.strftime('%Y%m%d_%H%M%S%f')+"_"+save_as+".png", result)
