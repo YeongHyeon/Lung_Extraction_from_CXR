@@ -76,18 +76,32 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
             if((x_start > 0) and (y_start > 0)):
                 if((x_end < image.shape[1]) and (y_end < image.shape[0])):
                     tmp_boxes.append([x_start, y_start, x_end-x_start, y_end-y_start, "lung", (acc_r+acc_l)/2])
-                    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_r)/2*100))+".png", image=image[y_start:y_end, x_start:x_end])
+                    cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_l)/2*100))+".png", image=image[y_start:y_end, x_start:x_end])
                     cnt += 1
 
     box_concat = []
+    # try:
+    #     max_idx = 0
+    #     tmp_size = 0
+    #     for idx in range(len(tmp_boxes)):
+    #         x, y, w, h, result, acc = tmp_boxes[idx]
+    #
+    #         if((w * h) > tmp_size):
+    #             tmp_size = w * h
+    #             max_idx = idx
+    #
+    #     x, y, w, h, result, acc = tmp_boxes[max_idx]
+    #     box_concat.append([x, y, w, h, result, acc])
+    # except:
+    #     pass
     try:
         max_idx = 0
-        tmp_size = 0
+        tmp_acc = 0
         for idx in range(len(tmp_boxes)):
             x, y, w, h, result, acc = tmp_boxes[idx]
 
-            if((w * h) > tmp_size):
-                tmp_size = w * h
+            if(acc > tmp_acc):
+                tmp_acc = acc
                 max_idx = idx
 
         x, y, w, h, result, acc = tmp_boxes[max_idx]
