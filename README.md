@@ -1,27 +1,17 @@
-<h1>ROI Extraction in CXR</h1>
+Lung_Extraction_from_CXR
+========================
 
-<p>
-<h2>CNN Model</h2>
-<img src="readme/model02.png">
-</p>
+CNN Structure
+-------------
+![CNN Structure](./readme/model02.png)
 
-<p>
-<h2>Sample of Dataset</h2>
-<img src="readme/datasample.png">
-<strong>Dataset</strong></br>
-NIH CXR dataset. (Total 112120 imgaes.)</br>
-You can get dataset <a href="https://nihcc.app.box.com/v/ChestXray-NIHCC">Here.</a></br>
-</p>
+Sample of Dataset
+-----------------
+![Data sample](./readme/datasample.png)
+Dataset from [NIH][Chest X-ray8]입니다.  
+[Chest X-ray8]: https://nihcc.app.box.com/v/ChestXray-NIHCC "Dataset link"  
+(Total 112120 imgaes.)  
 
-<p>
-<h2>Result</h2>
-<img src="readme/result.png">
-</p>
-
-<p>
-Requirements.</br>
-opencv 3.3.0</br>
-psutil</br>
-matplotlib</br>
-pydicom</br>
-</p>
+Result
+------
+![Data sample](./readme/result.png)
