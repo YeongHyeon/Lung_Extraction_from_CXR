@@ -1,4 +1,4 @@
-Lung_Extraction_from_CXR
+Lung Extraction from CXR
 ========================
 
 CNN Structure
