@@ -3,12 +3,12 @@ Lung_Extraction_from_CXR
 
 CNN Structure
 -------------
-![CNN Structure](./readme/model02.png)
+![CNN Structure](./readme/model.png)
 
 Sample of Dataset
 -----------------
 ![Data sample](./readme/datasample.png)
-Dataset from [NIH][Chest X-ray8]입니다.  
+Dataset from [NIH][Chest X-ray8]  
 [Chest X-ray8]: https://nihcc.app.box.com/v/ChestXray-NIHCC "Dataset link"  
 (Total 112120 imgaes.)  
 
