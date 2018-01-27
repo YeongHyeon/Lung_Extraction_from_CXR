@@ -80,34 +80,34 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
                     cnt += 1
 
     box_concat = []
-    # try:
-    #     max_idx = 0
-    #     tmp_size = 0
-    #     for idx in range(len(tmp_boxes)):
-    #         x, y, w, h, result, acc = tmp_boxes[idx]
-    #
-    #         if((w * h) > tmp_size):
-    #             tmp_size = w * h
-    #             max_idx = idx
-    #
-    #     x, y, w, h, result, acc = tmp_boxes[max_idx]
-    #     box_concat.append([x, y, w, h, result, acc])
-    # except:
-    #     pass
     try:
         max_idx = 0
-        tmp_acc = 0
+        tmp_size = 0
         for idx in range(len(tmp_boxes)):
             x, y, w, h, result, acc = tmp_boxes[idx]
 
-            if(acc > tmp_acc):
-                tmp_acc = acc
+            if((w * h) > tmp_size):
+                tmp_size = w * h
                 max_idx = idx
 
         x, y, w, h, result, acc = tmp_boxes[max_idx]
         box_concat.append([x, y, w, h, result, acc])
     except:
         pass
+    # try:
+    #     max_idx = 0
+    #     tmp_acc = 0
+    #     for idx in range(len(tmp_boxes)):
+    #         x, y, w, h, result, acc = tmp_boxes[idx]
+    #
+    #         if(acc > tmp_acc):
+    #             tmp_acc = acc
+    #             max_idx = idx
+    #
+    #     x, y, w, h, result, acc = tmp_boxes[max_idx]
+    #     box_concat.append([x, y, w, h, result, acc])
+    # except:
+    #     pass
 
     return box_concat # return only one box
 
