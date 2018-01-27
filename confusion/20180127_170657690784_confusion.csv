@@ -1,0 +1,4 @@
+Real\prediction,lung_left,lung_right,others,
+lung_left,122.0,0.0,0.0,
+lung_right,3.0,121.0,1.0,
+others,0.0,0.0,132.0,
