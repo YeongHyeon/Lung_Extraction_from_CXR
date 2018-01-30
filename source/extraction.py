@@ -35,12 +35,18 @@ def draw_boxes(image=None, boxes=None, ratio=1, file_name=None):
                     cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (0, 255, 0), 2)
                     # cv2.putText(image, result, (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 3)
                     cv2.putText(image, result, (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                elif((result == "lung")):
+                elif(result == "lung"):
                     # cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (255, 255, 255), 5)
                     cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (255, 0, 0), 2)
                     # cv2.putText(image, result, (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 3)
                     cv2.putText(image, result, (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+                elif(result == "others"):
+                    pass
                 else:
+                    # cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (255, 255, 255), 5)
+                    cv2.rectangle(image, (rx, ry), (rx+rw, ry+rh), (0, 0, 255), 2)
+                    # cv2.putText(image, result, (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 3)
+                    cv2.putText(image, result, (rx, ry), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
                     pass
 
     return image
@@ -120,13 +126,17 @@ def intersection_over_union(filename="", boxes=None, ratio=None):
     f.close
 
     iou = 0
+    bbox = []
     for idx in range(len(lines)):
         if(idx == 0):
             continue
         imgname, diagnosis, box_x, box_y, box_w, box_h  = lines[idx].split(",")
         box_x, box_y, box_w, box_h = float(box_x)/ratio, float(box_y)/ratio, float(box_w)/ratio, float(box_h)/ratio
+
         area = abs((box_x+box_w)-box_x) * abs((box_y+box_h)-box_y)
         if imgname in filename:
+            bi_x, bi_y, bi_w, bi_h = int(box_x), int(box_y), int(box_w), int(box_h)
+            bbox.append([bi_x, bi_y, bi_w, bi_h, str(diagnosis), int(100)])
             print(imgname)
 
             for lung in boxes:
@@ -183,7 +193,7 @@ def intersection_over_union(filename="", boxes=None, ratio=None):
                     iou = 0
             break
 
-    return iou
+    return iou, bbox
 
 def convert_image(image=None, height=None, width=None, channel=None):
 
@@ -191,7 +201,7 @@ def convert_image(image=None, height=None, width=None, channel=None):
 
     return np.asarray(resized_image).reshape((1, height*width*channel))
 
-def extract_segments(usr_path, extensions=None,
+def extract_lung(usr_path, extensions=None,
                      height=None, width=None, channel=None,
                      sess=None, x_holder=None, training=None,
                      prediction=None, saver=None):
@@ -290,7 +300,7 @@ def extract_segments(usr_path, extensions=None,
                 save_crops(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
                 concats = concatenate(image=resized, boxes=boxes_pred, ratio=1, file_name=tmp_file)
 
-                iou = intersection_over_union(filename=filename, boxes=concats, ratio=ratio)
+                iou, bbox = intersection_over_union(filename=filename, boxes=concats, ratio=ratio)
                 summf.write(str(filename))
                 summf.write(",")
                 summf.write(str(len(concats)))
@@ -300,12 +310,20 @@ def extract_segments(usr_path, extensions=None,
 
                 origin_res1 = cvf.resizing(image=origin, width=500)
                 origin_res2 = origin_res1.copy()
+                origin_res3 = origin_res1.copy()
+
                 origin_res_lr = draw_boxes(image=origin_res1, boxes=boxes_pred, ratio=1, file_name=tmp_file)
                 cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_lr.png", image=origin_res_lr)
                 origin_res_concat1 = draw_boxes(image=origin_res1, boxes=concats, ratio=1, file_name=tmp_file)
                 cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_lr_and_concat.png", image=origin_res_concat1)
                 origin_res_concat2 = draw_boxes(image=origin_res2, boxes=concats, ratio=1, file_name=tmp_file)
                 cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_concat.png", image=origin_res_concat2)
+                if(len(bbox) > 0):
+                    origin_res_bbox = draw_boxes(image=origin_res3, boxes=bbox, ratio=1, file_name=tmp_file)
+                    cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_bbox.png", image=origin_res_bbox)
+                    origin_res_concat3 = draw_boxes(image=origin_res3, boxes=concats, ratio=1, file_name=tmp_file)
+                    cvf.save_image(path=PACK_PATH+"/results/"+str(tmp_file)+"/", filename=str(tmp_file)+"_origin_concat_bbox.png", image=origin_res_concat3)
+
 
             else:
                 print("You must training first!")

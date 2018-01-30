@@ -9,7 +9,7 @@ import source.utility as util
 import source.data_handler as dhand
 import source.model as model
 import source.sub_procedure as sproc
-import source.segmentation as seg
+import source.extraction as extr
 
 def main():
 
@@ -56,7 +56,7 @@ def main():
     print("\nEnter the path")
     usr_path = input(">> ")
     if(util.check_path(usr_path)):
-        seg.extract_segments(usr_path=usr_path, extensions=extensions, height=height, width=width, channel=channel, sess=sess, x_holder=data, training=training, prediction=prediction, saver=saver)
+        extr.extract_lung(usr_path=usr_path, extensions=extensions, height=height, width=width, channel=channel, sess=sess, x_holder=data, training=training, prediction=prediction, saver=saver)
 
 if __name__ == '__main__':
 
