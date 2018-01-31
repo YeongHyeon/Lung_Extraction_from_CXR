@@ -79,7 +79,7 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
             center_lx = x_l + (w_l / 2)
             center_ly = y_l + (h_l / 2)
 
-            dist_limit = max(h_r, h_l) / 2
+            dist_limit = max(h_r, h_l) / 3 * 2
 
             if(abs(center_ry - center_ly) > dist_limit): # concat by y relation.
                 continue
