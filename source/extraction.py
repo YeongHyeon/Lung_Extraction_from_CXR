@@ -74,13 +74,14 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
         for box_l in box_left:
             x_l, y_l, w_l, h_l, result_l, acc_l = box_l
 
-            center_rx = (x_r + w_r) / 2
-            center_ry = (y_r + h_r) / 2
-            center_lx = (x_l + w_l) / 2
-            center_ly = (y_l + h_l) / 2
+            center_rx = x_r + (w_r / 2)
+            center_ry = y_r + (h_r / 2)
+            center_lx = x_l + (w_l / 2)
+            center_ly = y_l + (h_l / 2)
 
-            dist_limit = max(h_r, h_l)
-            if(abs(center_rx - center_lx) > (dist_limit / 3 * 2)): # concat by y relation.
+            dist_limit = max(h_r, h_l) / 2
+
+            if(abs(center_ry - center_ly) > dist_limit): # concat by y relation.
                 continue
             else:
                 x_start = min(x_r,x_l)
@@ -93,7 +94,7 @@ def concatenate(image=None, boxes=None, ratio=1, file_name=None):
                         tmp_boxes.append([x_start, y_start, x_end-x_start, y_end-y_start, "lung", (acc_r+acc_l)/2])
                         cvf.save_image(path=PACK_PATH+"/results/"+str(file_name)+"/", filename=str(file_name)+"_concat_"+str(cnt)+"_"+str(int((acc_r+acc_l)/2*100))+".png", image=image[y_start:y_end, x_start:x_end])
                         cnt += 1
-
+    print(len(tmp_boxes))
     box_concat = []
     try:
         max_idx = 0
