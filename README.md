@@ -14,7 +14,7 @@ This repository contains 'Lung Extaction System'. It need for efficient computin
 </figure>  
 
 <h2>CNN Structure</h2>
-<p align="justify">
+<p align="center">
 <figure>
   <center>
     <img src="./readme/model.png" alt="ResNet" id="resnet" title="ResNet" style="width: 400px;">
