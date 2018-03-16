@@ -14,12 +14,14 @@ This repository contains 'Lung Extaction System'. It need for efficient computin
 </figure>  
 
 <h2>CNN Structure</h2>
+<p align="justify">
 <figure>
   <center>
     <img src="./readme/model.png" alt="ResNet" id="resnet" title="ResNet" style="width: 400px;">
     <figcaption>Fig 2. The CNN model for classify each regions. It constructed ResNet like model.</figcaption>
   </center>
 </figure>  
+</p>
 
 <h2>Sample of Dataset</h2>
 <figure>
@@ -28,6 +30,7 @@ This repository contains 'Lung Extaction System'. It need for efficient computin
     <figcaption>Fig 3. Sample data of training dataset. These are reflects shape and texture of data that pre-processed by contouring and masking.</figcaption>
   </center>
 </figure>  
+
 
 Dataset: <a hfef="https://nihcc.app.box.com/v/ChestXray-NIHCC">Chest X-ray8</a> from NIH. (Total 112120 CXR images.)
 
