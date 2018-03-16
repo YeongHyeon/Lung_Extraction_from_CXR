@@ -1,15 +1,11 @@
-Lung Extraction from CXR
-========================
+<h1>Lung Extraction from CXR</h1>
 
-This repository contains 'Lung Extaction System'.</br>
-It need for efficient computing in registration between previous CXR and post CXR or etc. It is great for extracting 'Lung area' while minimizing loss of information in the original and cutting off unnecessary information.</br>
-Its performance measured as following.</br>
+This repository contains 'Lung Extaction System'. It need for efficient computing in registration between previous CXR and post CXR or etc. It is great for extracting 'Lung area' while minimizing loss of information in the original and cutting off unnecessary information. Its performance measured as following.</br>
 <strong>Precision</strong>: 0.788</br>
 <strong>Recall</strong>: 1.0</br>
 <strong>F1-score</strong>: 0.881</br>  
 
-Flow Chart
-----------
+<h2>Flow Chart</h2>
 <figure>
   <center>
     <img src="./readme/flowchart.png" alt="Flowchart" id="flow" title="Flowchart" style="width: 300px;">
@@ -17,8 +13,7 @@ Flow Chart
   </center>
 </figure>  
 
-CNN Structure
--------------
+<h2>CNN Structure</h2>
 <figure>
   <center>
     <img src="./readme/model.png" alt="ResNet" id="resnet" title="ResNet" style="width: 400px;">
@@ -26,9 +21,7 @@ CNN Structure
   </center>
 </figure>  
 
-Sample of Dataset
------------------
-
+<h2>Sample of Dataset</h2>
 <figure>
   <center>
     <img src="./readme/datasample.png" alt="Datasample" id="datasample" title="Datasample">
@@ -38,8 +31,7 @@ Sample of Dataset
 
 Dataset: <a hfef="https://nihcc.app.box.com/v/ChestXray-NIHCC">Chest X-ray8</a> from NIH. (Total 112120 CXR images.)
 
-Result
-------
+<h2>Result</h2>
 <figure>
   <center>
     <img src="./readme/result.png" alt="Result" id="result" title="result">
