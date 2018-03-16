@@ -1,26 +1,15 @@
 <h1>Lung Extraction from CXR</h1>
 
-<p align="center">
-  <b>Some Links:</b><br>
-  <a href="#">Link 1</a> |
-  <a href="#">Link 2</a> |
-  <a href="#">Link 3</a>
-  <br><br>
-  <img src="http://s.4cdn.org/image/title/105.gif">
-</p>
-
 This repository contains 'Lung Extaction System'. It need for efficient computing in registration between previous CXR and post CXR or etc. It is great for extracting 'Lung area' while minimizing loss of information in the original and cutting off unnecessary information. Its performance measured as following.</br>
 <strong>Precision</strong>: 0.788</br>
 <strong>Recall</strong>: 1.0</br>
 <strong>F1-score</strong>: 0.881</br>  
 
 <h2>Flow Chart</h2>
-<figure>
-  <center>
-    <img src="./readme/flowchart.png" alt="Flowchart" id="flow" title="Flowchart" style="width: 300px;">
-    <figcaption>Fig 1. The flowchart of the system.</figcaption>
-  </center>
-</figure>  
+<p align="center">
+  <img src="./readme/flowchart.png" alt="Flowchart" id="flow" title="Flowchart" style="width: 300px;"><br>
+  Fig 1. The flowchart of the system.
+</p>
 
 <h2>CNN Structure</h2>
 <figure>
