@@ -6,12 +6,10 @@ This repository contains 'Lung Extaction System'. It need for efficient computin
 <strong>F1-score</strong>: 0.881</br>  
 
 <h2>Flow Chart</h2>
-<figure>
-  <center>
-    <img src="./readme/flowchart.png" alt="Flowchart" id="flow" title="Flowchart" style="width: 300px;">
-    <figcaption>Fig 1. The flowchart of the system.</figcaption>
-  </center>
-</figure>  
+<center>
+  <img src="./readme/flowchart.png" alt="Flowchart" id="flow" title="Flowchart" style="width: 300px;">
+  <figcaption>Fig 1. The flowchart of the system.</figcaption>
+</center>
 
 <h2>CNN Structure</h2>
 <figure>
