@@ -1,5 +1,14 @@
 <h1>Lung Extraction from CXR</h1>
 
+<p align="center">
+  <b>Some Links:</b><br>
+  <a href="#">Link 1</a> |
+  <a href="#">Link 2</a> |
+  <a href="#">Link 3</a>
+  <br><br>
+  <img src="http://s.4cdn.org/image/title/105.gif">
+</p>
+
 This repository contains 'Lung Extaction System'. It need for efficient computing in registration between previous CXR and post CXR or etc. It is great for extracting 'Lung area' while minimizing loss of information in the original and cutting off unnecessary information. Its performance measured as following.</br>
 <strong>Precision</strong>: 0.788</br>
 <strong>Recall</strong>: 1.0</br>
@@ -14,14 +23,12 @@ This repository contains 'Lung Extaction System'. It need for efficient computin
 </figure>  
 
 <h2>CNN Structure</h2>
-<p align="center">
 <figure>
   <center>
     <img src="./readme/model.png" alt="ResNet" id="resnet" title="ResNet" style="width: 400px;">
     <figcaption>Fig 2. The CNN model for classify each regions. It constructed ResNet like model.</figcaption>
   </center>
-</figure>  
-</p>
+</figure>
 
 <h2>Sample of Dataset</h2>
 <figure>
